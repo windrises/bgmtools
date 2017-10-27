@@ -34,7 +34,7 @@ def bgmtools(request):
 		elif len(txt) == 0:
 			a = str(random.randint(1, mxcnt))
 			b = str(random.randint(1, mxcnt))
-		ss = '-------------------new post---------------------  type ' + str(len(txt))
+		ss = '-------------------new post---------------------  ' + a + ' ' + b + ' type ' + str(len(txt))
 		print ss
 		f.write(ss + '\n')
 		dic = run(a, b, f)
@@ -86,7 +86,7 @@ def run(a, b, f):
 			titemsb = soupb.find('ul', class_='browserFull')
 
 		if i == 1:
-			if (stra.find('出错了') != -1 or strb.find('出错了') != -1):
+			if (stra.find('数据库中没有查询到该用户的信息') != -1 or strb.find('数据库中没有查询到该用户的信息') != -1):
 				ss = 'error ' + a + ' ' + b
 				print ss
 				f.write(ss + '\n')
