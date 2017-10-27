@@ -67,29 +67,31 @@ def run(a, b, f):
 	txtb = []
 	rand = random.randint(0, 6)
 	myheaders = {'User-Agent': 'Chrome/61.0.3163.100'}
+	flaga = 1
+	flagb = 1
 	for i in range(1, 999999):
 		print 'page' + str(i)
 		f.write('page' + str(i) + '\n')
-		urla = 'https://bgm.tv/anime/list/' + a + '/collect?page=' + str(i)
-		reqa = urllib2.Request(url=urla, headers=myheaders)
-		stra = urllib2.urlopen(reqa).read()
-
-		urlb = 'https://bgm.tv/anime/list/' + b + '/collect?page=' + str(i)
-		reqb = urllib2.Request(url=urlb, headers=myheaders)
-		strb = urllib2.urlopen(reqb).read()
-
-		if(stra.find('出错了') != -1 or strb.find('出错了') != -1):
-			ss = 'error ' + a + ' ' + b
-			print ss
-			f.write(ss + '\n')
-			return {'error' : 'error','rand' : random.randint(0, 6)}
-
-		soupa = BeautifulSoup(stra, 'html.parser', from_encoding='utf-8')
-		titemsa = soupa.find('ul', class_='browserFull')
-		soupb = BeautifulSoup(strb, 'html.parser', from_encoding='utf-8')
-		titemsb = soupb.find('ul', class_='browserFull')
+		if flaga == 1:
+			urla = 'https://bgm.tv/anime/list/' + a + '/collect?page=' + str(i)
+			reqa = urllib2.Request(url=urla, headers=myheaders)
+			stra = urllib2.urlopen(reqa).read()
+			soupa = BeautifulSoup(stra, 'html.parser', from_encoding='utf-8')
+			titemsa = soupa.find('ul', class_='browserFull')
+		if flagb == 1:
+			urlb = 'https://bgm.tv/anime/list/' + b + '/collect?page=' + str(i)
+			reqb = urllib2.Request(url=urlb, headers=myheaders)
+			strb = urllib2.urlopen(reqb).read()
+			soupb = BeautifulSoup(strb, 'html.parser', from_encoding='utf-8')
+			titemsb = soupb.find('ul', class_='browserFull')
 
 		if i == 1:
+			if (stra.find('出错了') != -1 or strb.find('出错了') != -1):
+				ss = 'error ' + a + ' ' + b
+				print ss
+				f.write(ss + '\n')
+				return {'error': 'error', 'rand': random.randint(0, 6)}
+
 			nicka = soupa.find('h1', class_='nameSingle').find('div', class_='inner').a.get_text()
 			ta = soupa.find('h1', class_='nameSingle').find('small', class_='grey').get_text()
 			a = ta[1 : ]
@@ -108,6 +110,10 @@ def run(a, b, f):
 
 		if len(titemsa) == 0 and len(titemsb) == 0:
 			break
+		if len(titemsa) == 0:
+			flaga = 0
+		if len(titemsb) == 0:
+			flagb = 0
 		for itema in titemsa:
 			itemsa.append(itema)
 		for itemb in titemsb:
