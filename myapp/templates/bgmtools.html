@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" name="viewport">
+<title>bgmtools</title>
+
+<link rel="shortcut icon" href="http://bgm.tv/img/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon-precomposed" href="http://bgm.tv/img/ico/ico_ios.png">
+
+<link rel="stylesheet" type="text/css" href="/static/style.css">
+</head>
+<body class="bangumi">
+<div id="wrapperNeue" class="wrapperNeue">
+<div id="headerNeue2">
+<div class="headerNeueInner clearit">
+<div class="bg musume_{{dic.rand}}"></div>
+<a href="https://www.bgm.tv" class="logo">Bangumi 番组计划</a>
+<div id="headerSearchWrapper">
+<div id="headerSearch">
+<form method="post">
+    {% csrf_token%}
+<div class="inner">
+<input id="search_text" name="search_text" class="textfield" type="text">
+<input type="submit" name="submit" value="开始" class="search">
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+<div id="main" class="png_bg"></div>
+
+    {% if 'a' in dic %}
+
+<table>
+<tr><td>
+<div id="headerProfile" class="clearit" style="width:700px">
+<div class="subjectNav">
+<div class="headerContainer" style="height: 70px">
+<h1 class="nameSingle" style="width:700px">
+<div class="headerAvatar">
+<a href="https://bgm.tv/user/{{dic.a}}" class="avatar"><span class="avatarNeue avatarSize75" style="background-image:url('//{{dic.avatera}}')"> </span></a>
+</div>
+<div class="inner" style="width:700px">
+<a href="https://bgm.tv/user/{{dic.a}}">{{dic.nicka}}</a> <small class="grey">@{{dic.a}}</small>
+</div>
+</h1>
+</div>
+</div>
+</div>
+</td>
+
+<td>
+<div id="headerProfile" class="clearit" style="width:600px">
+<div class="subjectNav">
+<div class="headerContainer" style="height: 70px">
+<h1 class="nameSingle" style="width:600px">
+<div class="headerAvatar">
+<a href="https://bgm.tv/user/{{dic.b}}" class="avatar"><span class="avatarNeue avatarSize75" style="background-image:url('//{{dic.avaterb}}')"> </span></a>
+</div>
+<div class="inner" style="width:600px">
+<a href="https://bgm.tv/user/{{dic.b}}">{{dic.nickb}}</a> <small class="grey">@{{dic.b}}</small>
+</div>
+</h1>
+</div>
+</div>
+</div>
+</td>
+</tr>
+</table>
+<div class="columns clearit">
+  <div id="columnSubjectBrowserA" class="column">
+    <ul id="browserItemList" class="browserFull">
+     <table>
+         {% for info in dic.info%}
+     <tr><td>
+      <li id="item_{{info.0}}" class="item odd clearit"> <a href="https://bgm.tv/subject/{{info.0}}" class="subjectCover cover ll"> <span class="image"> <img src="{{info.1}}" class="cover"> </span> <span class="overlay"></span> </a>
+        <div class="inner">
+          <h3> <a href="https://bgm.tv/subject/{{info.0}}" class="l">{{info.2}}</a> <small class="grey">{{info.3}}</small> </h3>
+          <p class="info tip"> {{info.12}} </p>
+          <p class="collectInfo"> <span class="{{info.4}}"></span> <span class="tip_j">{{info.8}}</span> <span class="tip_i">/</span><span class="tip"> {{info.6}} </span></p>
+          <div id="comment_box">
+            <div class="item">
+              <div class="text_main_even" style="float:none;">
+                <div class="text"> {{info.10}}</div>
+                <div class="text_bottom"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+     </td><td>
+     <li id="item_{{info.0}}">
+        <div class="inner">
+          <p class="collectInfo"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="{{info.5}}"></span> <span class="tip_j">{{info.9}}</span> <span class="tip_i">/</span><span class="tip"> {{info.7}} </span></p>
+          <div id="comment_box">
+            <div class="item">
+              <div class="text_main_even" style="float:none;">
+                <div class="text"> {{info.11}}</div>
+                <div class="text_bottom"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+     </td></tr>
+         {% endfor %}
+     <tr><td>
+     </table>
+
+        {% elif 'error' in dic %}
+            <div class="columns clearit">
+            <div id="colunmNotice">
+            <img src="/static/404.png" class="ll">
+            <div class="message">
+            <h2>呜咕，出错了</h2>
+            <p class="text">数据库中没有查询到该用户的信息</p>
+            </div>
+            </div>
+            </div>
+        {% else %}
+            <div class="columns clearit">
+            <div id="colunmNotice">
+            <div class="message">
+            <h2>使用说明</h2>
+            <p class="text">1、在右上角输入框里输入两个用户的id，以空格隔开，回车进行比对<br />
+                            2、只输入一个用户的id，则程序会再随机选取一个用户<br />
+                            3、什么都不输入，则随机选两个用户</p>
+            </div>
+            </div>
+            </div>
+        {% endif %}
+    </ul>
+  </div>
+</div>
+</div>
+
+</body>
+</html>
