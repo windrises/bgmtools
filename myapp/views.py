@@ -7,7 +7,6 @@ import random
 from bs4 import BeautifulSoup
 
 # Create your views here.
-
 def home(request):
 	string = '么么哒'
 	return HttpResponse(string)
@@ -21,28 +20,54 @@ def bgmtools(request):
 	f.write(s + '\n')
 	dic = {'rand' : random.randint(0, 6)}
 	if request.method == 'POST':
+		cat = request.POST['cat']
 		txt = request.POST['search_text']
 		txt = txt.strip()
 		txt = txt.split()
-		mxcnt = 373679
+
 		if len(txt) == 2:
 			a = txt[0].strip()
 			b = txt[1].strip()
 		elif len(txt) == 1:
 			a = txt[0].strip()
-			b = str(random.randint(1, mxcnt))
+			b = getrand(5, cat)
 		elif len(txt) == 0:
-			a = str(random.randint(1, mxcnt))
-			b = str(random.randint(1, mxcnt))
-		ss = '-------------------new post---------------------  ' + a + ' ' + b + ' type ' + str(len(txt))
+			a = getrand(3, cat)
+			b = getrand(3, cat)
+		ss = '-------------------new post---------------------  ' + a + ' ' + b + ' type ' + str(len(txt)) + '  cat ' + cat
 		print ss
 		f.write(ss + '\n')
-		dic = run(a, b, f)
+		dic = run(a, b, f, cat)
 		f.close()
 
 	return render(request, 'bgmtools.html', {'dic' : dic})
 
-def run(a, b, f):
+def getrand(times, cat):
+	mxusr = 373679
+	mxcnt = 0
+	rt = ''
+	for i in range(0 , times):
+		tcnt = 0
+		a = str(random.randint(1, mxusr))
+		myheaders = {'User-Agent': 'Chrome/61.0.3163.100'}
+		urla = 'https://bgm.tv/' + cat + '/list/' + a + '/collect'
+		reqa = urllib2.Request(url=urla, headers=myheaders)
+		stra = urllib2.urlopen(reqa).read()
+		soupa = BeautifulSoup(stra, 'html.parser', from_encoding='utf-8')
+		ss = str(soupa.find('ul', class_='navSubTabs'))
+		p1 = ss.find('过')
+		if p1 == -1:
+			tcnt = 0
+		else:
+			p2 = ss.find('(', p1)
+			p3 = ss.find(')', p2)
+			tcnt = int(ss[p2 + 1 : p3])
+		if tcnt >= mxcnt:
+			rt = a
+			mxcnt = tcnt
+	return rt
+
+def run(a, b, f, cat):
 	ss = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 	print ss
 	f.write(ss + '\n')
@@ -73,13 +98,13 @@ def run(a, b, f):
 		print 'page' + str(i)
 		f.write('page' + str(i) + '\n')
 		if flaga == 1:
-			urla = 'https://bgm.tv/anime/list/' + a + '/collect?page=' + str(i)
+			urla = 'https://bgm.tv/' + cat + '/list/' + a + '/collect?page=' + str(i)
 			reqa = urllib2.Request(url=urla, headers=myheaders)
 			stra = urllib2.urlopen(reqa).read()
 			soupa = BeautifulSoup(stra, 'html.parser', from_encoding='utf-8')
 			titemsa = soupa.find('ul', class_='browserFull')
 		if flagb == 1:
-			urlb = 'https://bgm.tv/anime/list/' + b + '/collect?page=' + str(i)
+			urlb = 'https://bgm.tv/' + cat + '/list/' + b + '/collect?page=' + str(i)
 			reqb = urllib2.Request(url=urlb, headers=myheaders)
 			strb = urllib2.urlopen(reqb).read()
 			soupb = BeautifulSoup(strb, 'html.parser', from_encoding='utf-8')
@@ -118,6 +143,8 @@ def run(a, b, f):
 			itemsa.append(itema)
 		for itemb in titemsb:
 			itemsb.append(itemb)
+		if len(itemsa) == 0 or len(itemsb) == 0:
+			break
 
 	for itema in itemsa:
 		itemida = itema.a['href']
@@ -185,7 +212,7 @@ def run(a, b, f):
 	ss = 'suc end'
 	print ss
 	f.write(ss + '\n')
-	dic = {'a' : a, 'b' : b, 'nicka' : nicka, 'nickb' : nickb, 'avatera' : avatera, 'avaterb' : avaterb, 'rand' : rand,
+	dic = {'a' : a, 'b' : b, 'nicka' : nicka, 'nickb' : nickb, 'avatera' : avatera, 'avaterb' : avaterb, 'rand' : rand, 'cat' : cat,
 		'info' : zip(id, img, namechs, namejp, stara, starb, tagsa, tagsb, datea, dateb, txta, txtb, tip)}
 	return dic
 

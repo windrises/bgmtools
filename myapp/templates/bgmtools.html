@@ -15,12 +15,19 @@
 <div id="headerNeue2">
 <div class="headerNeueInner clearit">
 <div class="bg musume_{{dic.rand}}"></div>
-<a href="https://www.bgm.tv" class="logo">Bangumi 番组计划</a>
+<a href="https://bgm.tv" class="logo">Bangumi 番组计划</a>
 <div id="headerSearchWrapper">
 <div id="headerSearch">
 <form method="post">
     {% csrf_token%}
 <div class="inner">
+<select name="cat" id="siteSearchSelect">
+<option value="anime" {% if dic.cat == 'anime' %} selected="selected" {% endif %} >动画</option>
+<option value="book" {% if dic.cat == 'book' %} selected="selected" {% endif %} >书籍</option>
+<option value="game" {% if dic.cat == 'game' %} selected="selected" {% endif %} >游戏</option>
+<option value="music" {% if dic.cat == 'music' %} selected="selected" {% endif %} >音乐</option>
+<option value="real" {% if dic.cat == 'real' %} selected="selected" {% endif %} >三次元</option>
+</select>
 <input id="search_text" name="search_text" class="textfield" type="text">
 <input type="submit" name="submit" value="开始" class="search">
 </div>
