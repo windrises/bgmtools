@@ -71,25 +71,11 @@ def run(a, b, f, cat):
 	ss = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 	print ss
 	f.write(ss + '\n')
-	nicka = ''
-	nickb = ''
-	avatera = ''
-	avaterb = ''
-	itemsa = []
-	itemsb = []
-	id = []
-	img = []
-	namechs = []
-	namejp = []
-	tip = []
-	stara = []
-	starb = []
-	tagsa = []
-	tagsb = []
-	datea = []
-	dateb = []
-	txta = []
-	txtb = []
+	nicka = ''; nickb = ''; avatera = ''; avaterb = ''
+	itemsa = []; itemsb = []
+	id = []; img = []; namechs = []; namejp = []; tip = []
+	stara = []; starb = []; tagsa = []; tagsb = []
+	datea = []; dateb = []; txta = []; txtb = []
 	rand = random.randint(0, 6)
 	myheaders = {'User-Agent': 'Chrome/61.0.3163.100'}
 	flaga = 1
@@ -212,8 +198,33 @@ def run(a, b, f, cat):
 	ss = 'suc end'
 	print ss
 	f.write(ss + '\n')
+	id1 = [[], [], []]; img1 = [[], [], []]; namechs1 = [[], [], []]; namejp1 = [[], [], []]; stara1 = [[], [], []]; starb1 = [[], [], []]
+	tagsa1 = [[], [], []]; tagsb1 = [[], [], []]; datea1 = [[], [], []]; dateb1 = [[], [], []]; txta1 = [[], [], []]; txtb1 = [[], [], []]; tip1 = [[], [], []]
+
+	for i in range(0, len(id)):
+		if stara[i] == 'None' or starb[i] == 'None':
+			sa = 10
+			sb = 1
+		else:
+			sa = int(stara[i][6 : stara[i].find(' ')])
+			sb = int(starb[i][6 : starb[i].find(' ')])
+		if sa >= 7 and sb >= 7:
+			id1[0].append(id[i]); img1[0].append(img[i]); namechs1[0].append(namechs[i]); namejp1[0].append(namejp[i])
+			stara1[0].append(stara[i]); starb1[0].append(starb[i]); tagsa1[0].append(tagsa[i]); tagsb1[0].append(tagsb[i])
+			datea1[0].append(datea[i]); dateb1[0].append(dateb[i]); txta1[0].append(txta[i]); txtb1[0].append(txtb[i]); tip1[0].append(tip[i])
+		elif sa < 7 and sb < 7:
+			id1[1].append(id[i]); img1[1].append(img[i]); namechs1[1].append(namechs[i]); namejp1[1].append(namejp[i])
+			stara1[1].append(stara[i]); starb1[1].append(starb[i]); tagsa1[1].append(tagsa[i]); tagsb1[1].append(tagsb[i])
+			datea1[1].append(datea[i]); dateb1[1].append(dateb[i]); txta1[1].append(txta[i]); txtb1[1].append(txtb[i]); tip1[1].append(tip[i])
+		else:
+			id1[2].append(id[i]); img1[2].append(img[i]); namechs1[2].append(namechs[i]); namejp1[2].append(namejp[i])
+			stara1[2].append(stara[i]); starb1[2].append(starb[i]); tagsa1[2].append(tagsa[i]); tagsb1[2].append(tagsb[i])
+			datea1[2].append(datea[i]); dateb1[2].append(dateb[i]); txta1[2].append(txta[i]); txtb1[2].append(txtb[i]); tip1[2].append(tip[i])
+
 	dic = {'a' : a, 'b' : b, 'nicka' : nicka, 'nickb' : nickb, 'avatera' : avatera, 'avaterb' : avaterb, 'rand' : rand, 'cat' : cat,
-		'info' : zip(id, img, namechs, namejp, stara, starb, tagsa, tagsb, datea, dateb, txta, txtb, tip)}
+		'info0' : zip(id1[0], img1[0], namechs1[0], namejp1[0], stara1[0], starb1[0], tagsa1[0], tagsb1[0], datea1[0], dateb1[0], txta1[0], txtb1[0], tip1[0]),
+		'info1': zip(id1[1], img1[1], namechs1[1], namejp1[1], stara1[1], starb1[1], tagsa1[1], tagsb1[1], datea1[1], dateb1[1], txta1[1], txtb1[1], tip1[1]),
+		'info2': zip(id1[2], img1[2], namechs1[2], namejp1[2], stara1[2], starb1[2], tagsa1[2], tagsb1[2], datea1[2], dateb1[2], txta1[2], txtb1[2], tip1[2])}
 	return dic
 
 
