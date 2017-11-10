@@ -1,8 +1,4 @@
 # bgmtools
-Bangumi.tv小工具，展示比对两个用户都“已看”的条目 使用Django开发
-访问地址：http://39.106.63.71/bgmtools
-
-使用说明
-1、在右上角输入框里输入两个用户的id，以空格隔开，回车进行比对
-2、只输入一个用户的id，则程序会再随机选取一个用户
-3、什么都不输入，则随机选两个用户
+Bangumi.tv小工具，使用Django开发
+1、展示比对两个用户都“已看”的条目  http://39.106.63.71/bgmtools/contrast
+2、多标签检索 http://39.106.63.71/bgmtools/multitag
