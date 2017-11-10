@@ -1,6 +1,7 @@
 #coding=utf-8
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.cache import cache_page
 from django.http import HttpResponse
 import urllib2
 import time
@@ -30,6 +31,7 @@ def bgmtools(request):
     string = '呵呵哒'
     return HttpResponse(string)
 
+@cache_page(60 * 15)
 def contrast(request):
     a = ''
     b = ''
@@ -257,6 +259,7 @@ def getAll(url):
     elif url == 'real':
         return Real.objects.all()
 
+@cache_page(60 * 15)
 def multitag(request, url):
     print request,url
     f.write(str(request) + '  ----------------  ' + str(url) + '\n')
@@ -327,6 +330,8 @@ def multitag(request, url):
             for i in range(0, len(tag) - 1):
                 result = result.filter(tag__name = tag[i])
             if cat != '全部':
+                if cat == '其他':
+                    cat = ''
                 if url == 'game':
                     print len(result)
                     result = result.filter(platform__contains = cat)
@@ -334,8 +339,6 @@ def multitag(request, url):
                 elif url == 'real':
                     result = result.filter(country__contains = cat)
                 elif url == 'anime' or url == 'music':
-                    if cat == '其他':
-                        cat = ''
                     result = result.filter(cat = cat)
             if time != 'timeall':
                 result = result.filter(time__contains = time)
