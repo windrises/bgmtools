@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" name="viewport">
+<title>bgmtools</title>
+
+<link rel="shortcut icon" href="https://bgm.tv/img/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon-precomposed" href="https://bgm.tv/img/ico/ico_ios.png">
+
+<link rel="stylesheet" type="text/css" href="/static/style.css">
+
+</head>
+<body class="bangumi">
+<div id="wrapperNeue" class="wrapperNeue">
+<div id="headerNeue2">
+<div class="headerNeueInner clearit">
+<div id="bgmusume" class="bg musume_6"></div>
+<a href="https://bgm.tv/" class="logo">Bangumi 番组计划</a>
+<input type="checkbox" id="navMenuNeueToggle">
+<label for="navMenuNeueToggle" class="menuCompact"></label>
+<div id="navNeue2">
+<div id="menuNeue">
+<ul id="navMenuNeue" class="clearit">
+<li><a href="/bgmtools/multitag/anime" class="top chl anime"><span>动画</span></a>
+<div class="clear"></div>
+</li>
+<li><a href="/bgmtools/multitag/book" class="focus chl"><span>书籍</span></a>
+<div class="clear"></div>
+</li>
+<li><a href="/bgmtools/multitag/music" class="top chl"><span>音乐</span></a>
+<div class="clear"></div>
+</li>
+<li><a href="/bgmtools/multitag/game" class="top chl"><span>游戏</span></a>
+<div class="clear"></div>
+</li>
+<li><a href="/bgmtools/multitag/real" class="top chl real"><span>三次元</span></a>
+<div class="clear"></div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="main" class="png_bg">
+<div id="header" class="part1">
+<h1>Bangumi 书籍标签</h1>
+</div>
+<div id="header" class="part2">
+<h1>已选标签:</h1>
+<ul id="result">
+
+</ul>
+</div>
+
+<div class="columns clearit" style="float: left">
+<div id="columnA" class="column part1">
+<div id="tagList">
+
+</div>
+<div id="multipage1" class="page_inner">
+
+</div>
+</div>
+
+<div id="columnSubjectBrowserA" class="column part2">
+<div id="browserTools" class="clearit">
+<a id="sortbyname 0" href="javascript:void(0);" class="l focus">按名称排序</a> ·
+<a id="sortbydate 1" href="javascript:void(0);" class="l">按日期排序</a> ·
+<a id="sortbyrank 0" href="javascript:void(0);" class="l">按排名排序</a> ·
+<a id="sortbyvotes 1" href="javascript:void(0);" class="l">按评价数排序</a>
+
+</div> <div class="section">
+<ul id="browserItemList" class="browserFull">
+
+</ul>
+<div class="clearit">
+<div id="multipage2" class="page_inner">
+
+</div></div>
+</div>
+</div>
+<div id="columnSubjectBrowserB" class="column">
+<div class="sideInner">
+<h2 class="subtitle">标签搜索</h2>
+<ul class="grouped clearit">
+<li>
+<form id="tagSearch" name="tagSearch">
+<div class="inner clearit">
+
+<input type="text" id="search_text" size="19" class="inputtext" placeholder="空格或逗号隔开">
+<div class="search">
+<input id="search" value="搜索" class="btnPink">
+</div>
+</div>
+</form>
+</li>
+</ul>
+
+<h2 class="subtitle">类别</h2>
+<ul class="grouped clearit">
+<dl id="cat">
+<li><a href="javascript:void(0);" class="l focus"><span>全部</span></a></li>
+<li><a href="javascript:void(0);" class="l"><span>漫画</span></a></li>
+<li><a href="javascript:void(0);" class="l"><span>小说</span></a></li>
+<li><a href="javascript:void(0);" class="l"><span>画集</span></a></li>
+<li><a href="javascript:void(0);" class="l"><span>其他</span></a></li>
+</dl>
+</ul>
+
+<h2 class="subtitle">时间</h2>
+<ul id="airTimeMenu" class="grouped clearit">
+<li class="time"><a id="timeall" href="javascript:void(0);" class="l focus">&nbsp;&nbsp;全部</a></li>
+<li class="airYear"><a id="2017" href="javascript:void(0);" class="l">2017年</a></li>
+<li class="airYear"><a id="2016" href="javascript:void(0);" class="l">2016年</a></li>
+<li class="airYear"><a id="2015" href="javascript:void(0);" class="l">2015年</a></li>
+<li id="futureAirTime"><a href="javascript:void(0)" class="l">来年们</a></li>
+<li class="airYear"><a id="2014" href="javascript:void(0);" class="l">2014年</a></li>
+<li class="airYear"><a id="2013" href="javascript:void(0);" class="l">2013年</a></li>
+<li class="airYear"><a id="2012" href="javascript:void(0);" class="l">2012年</a></li>
+<li id="pastAirTime"><a href="javascript:void(0)" class="l">往年们</a></li>
+<li class="airYear"><a id="2011" href="javascript:void(0);" class="l">2011年</a></li>
+<li class="airYear"><a id="2010" href="javascript:void(0);" class="l">2010年</a></li>
+<li class="airYear"><a id="2009" href="javascript:void(0);" class="l">2009年</a></li>
+</ul>
+
+<h2 class="subtitle part2">当前热门标签</h2>
+<ul class="grouped clearit part2">
+<dl id="select" class="part2">
+
+</dl>
+</ul>
+
+<h2 class="subtitle">更多</h2>
+<ul class="grouped clearit">
+<li><a href="javascript:void(0);" id="alltag" class="l">浏览全部书籍标签</a></li>
+<li><a href="javascript:void(0);" id="allanime" class="l">浏览全部书籍</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div></div>
+<div class="homeBg"></div>
+
+<script type="text/javascript" src="/static/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/static/script.js"></script>
+</body></html>

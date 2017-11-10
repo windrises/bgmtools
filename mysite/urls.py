@@ -19,6 +19,8 @@ from myapp import views as myapp_views
 
 urlpatterns = [
     url(r'^$', myapp_views.home, name='home'),
-    url(r'^bgmtools/', myapp_views.bgmtools, name='bgmtools'),
+    url(r'^bgmtools/$', myapp_views.bgmtools, name='bgmtools'),
+    url(r'^bgmtools/contrast/$', myapp_views.contrast, name='contrast'),
+    url(r'^bgmtools/multitag/([A-Za-z]*)', myapp_views.multitag, name='multitag'),
     url(r'^admin/', include(admin.site.urls)),
 ]
