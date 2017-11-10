@@ -197,6 +197,7 @@ $(document).ready(function () {
     }
 
     function part1show(ret) {
+        bgmusume();
         str = '';
         for (i in ret.data) {
             var x = ret.data[i];
