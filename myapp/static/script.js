@@ -135,7 +135,7 @@ $(document).ready(function () {
         $("#bgmusume").attr('class', 'bg musume_' + rand);
         $("#bgmusume").css("background-position", -40 * (rand - 1) + 'px ' + 0 + 'px');
     }
-    function bgmusume_run(status) {
+    function bgmusume_run() {
         var pos = 0;
         var speed = -10;
         function move() {
@@ -150,8 +150,8 @@ $(document).ready(function () {
     function scroll() {
         window.scrollBy(0, -60);
         scrolldelay = setTimeout(scroll, 20);
-        var sTop = document.documentElement.scrollTop + document.body.scrollTop;
-        if(sTop == 0) clearTimeout(scrolldelay);
+        var sTop = document.documentElement.scrollTop + document.body.scrollTop + window.pageYOffset;
+        if(sTop <= 0) clearTimeout(scrolldelay);
     }
 
     function pageshow(page, maxpage, part) {
