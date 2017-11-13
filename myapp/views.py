@@ -58,7 +58,6 @@ def contrast(request):
         print ss
         f.write(ss + '\n')
         dic = run(a, b, f, cat)
-        f.close()
 
     return render(request, 'contrast.html', {'dic' : dic})
 
