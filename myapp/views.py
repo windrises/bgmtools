@@ -81,15 +81,18 @@ def contrast(request, url):
             a = url[0].strip()
         else:
             return render(request, 'contrast.html', {'dic': {'error': 'error', 'rand': random.randint(0, 6)}})
+        tp = 2
         if a == '' and b == '':
             a = getrand(3, cat)
             b = getrand(3, cat)
+            tp = 0
         elif a == '':
             a = getrand(5, cat)
+            tp = 1
         elif b == '':
             b = getrand(5, cat)
-        ss = '-------------------new post---------------------  ' + a + ' ' + b + ' type ' + str(
-            len(url)) + '  cat ' + cat
+            tp = 1
+        ss = '-------------------new post---------------------  ' + a + ' ' + b + ' type ' + str(tp) + '  cat ' + cat
         mylog(ss)
         dic = run(a, b, f, cat)
     f.flush()
@@ -233,10 +236,12 @@ def run(a, b, f, cat):
     titemsb = threadb.get_result()
     itemsa.extend(titemsa)
     itemsb.extend(titemsb)
-    titemsa = get_items(cat, a, pagesa)
-    titemsb = get_items(cat, b, pagesb)
-    itemsa.extend(titemsa)
-    itemsb.extend(titemsb)
+    if pagesa > 1:
+        titemsa = get_items(cat, a, pagesa)
+        itemsa.extend(titemsa)
+    if pagesb > 1:
+        titemsb = get_items(cat, b, pagesb)
+        itemsb.extend(titemsb)
 
     for itema in itemsa:
         itemida = itema.a['href']
