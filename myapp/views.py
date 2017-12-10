@@ -25,6 +25,10 @@ sys.setdefaultencoding('utf-8')
 f = open('log.txt', 'a')
 
 # Create your views here.
+def mylog(s):
+    print s
+    f.write(s + '\n')
+
 def home(request):
     string = '么么哒'
     return HttpResponse(string)
@@ -38,8 +42,7 @@ def contrast(request, url):
     a = ''
     b = ''
     s = '***************new viewer****************'
-    print s
-    f.write(s + '\n')
+    mylog(s)
     dic = {'rand' : random.randint(0, 6)}
     if request.method == 'POST':
         cat = request.POST['cat']
@@ -57,11 +60,10 @@ def contrast(request, url):
             a = getrand(3, cat)
             b = getrand(3, cat)
         ss = '-------------------new post---------------------  ' + a + ' ' + b + ' type ' + str(len(txt)) + '  cat ' + cat
-        print ss
-        f.write(ss + '\n')
+        mylog(ss)
         return HttpResponseRedirect('/bgmtools/contrast/' + cat + '@' + a + '&' + b)
     elif url != '':
-        print url
+        mylog(url)
         url = url.split('@')
         cat = url[0]
         if cat != 'anime' and cat != 'book' and cat != 'music' and cat != 'game' and cat != 'real':
@@ -86,10 +88,10 @@ def contrast(request, url):
             a = getrand(5, cat)
         elif b == '':
             b = getrand(5, cat)
+        ss = '-------------------new post---------------------  ' + a + ' ' + b + ' type ' + str(
+            len(url)) + '  cat ' + cat
+        mylog(ss)
         dic = run(a, b, f, cat)
-        ss = '-------------------new post---------------------  ' + a + ' ' + b + ' type ' + str(len(url)) + '  cat ' + cat
-        print ss
-        f.write(ss + '\n')
     f.flush()
     return render(request, 'contrast.html', {'dic' : dic})
 
@@ -119,20 +121,20 @@ def getrand(times, cat):
     return rt
 
 class myThread(threading.Thread):
-    def __init__(self,cat, id, pages):
+    def __init__(self, cat, uid, pages):
         threading.Thread.__init__(self)
         self.cat = cat
-        self.id = id
+        self.uid = uid
         self.pages = pages
         self.result = []
         self.str = ''
         self.soup = ''
+
     def run(self):
         for page in self.pages:
             ss = 'page' + str(page)
-            print ss
-            f.write(ss + '\n')
-            url = 'https://bgm.tv/' + self.cat + '/list/' + self.id + '/collect?page=' + str(page)
+            mylog(ss)
+            url = 'https://bgm.tv/' + self.cat + '/list/' + self.uid + '/collect?page=' + str(page)
             myheaders = {'User-Agent': 'Chrome/61.0.3163.100'}
             req = urllib2.Request(url=url, headers=myheaders)
             self.str = urllib2.urlopen(req).read()
@@ -140,10 +142,25 @@ class myThread(threading.Thread):
             self.result.extend(self.soup.find('ul', class_='browserFull'))
     def get_result(self):
         return self.result
-    def get_str(self):
-        return self.str
     def get_soup(self):
         return self.soup
+
+#@cache_page(60 * 15)
+def get_items(cat, uid, pages):
+    threads = []
+    pages -= 1
+    tdnum = min(pages, 6)
+    for p in range(1, tdnum):
+        threads.append(myThread(cat, uid, range(pages * p / tdnum + 1, pages * (p + 1) / tdnum + 1)))
+    threads.append(myThread(cat, uid, range(pages * tdnum / tdnum + 1, pages + 2)))
+    for x in threads:
+        x.start()
+    items = []
+    for x in threads:
+        x.join()
+        titems = x.get_result()
+        items.extend(titems)
+    return items
 
 def run(a, b, f, cat):
     ss = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
@@ -161,19 +178,13 @@ def run(a, b, f, cat):
     threada.start()
     threadb.start()
     threada.join()
-    threadb.join()
-    stra = threada.get_str()
-    strb = threadb.get_str()
     soupa = threada.get_soup()
-    soupb = threadb.get_soup()
-
-    if (stra.find('数据库中没有查询到该用户的信息') != -1 or strb.find('数据库中没有查询到该用户的信息') != -1):
+    nicka = soupa.find('h1', class_='nameSingle')
+    if nicka == None:
         ss = 'error ' + a + ' ' + b
-        print ss
-        f.write(ss + '\n')
+        mylog(ss)
         return {'error': 'error', 'rand': random.randint(0, 6)}
-
-    nicka = soupa.find('h1', class_='nameSingle').find('div', class_='inner').a.get_text()
+    nicka = nicka.find('div', class_='inner').a.get_text()
     ta = soupa.find('h1', class_='nameSingle').find('small', class_='grey').get_text()
     a = ta[1 : ]
     avatera = str(soupa.find('span', class_='avatarNeue avatarSize75'))
@@ -190,7 +201,14 @@ def run(a, b, f, cat):
         p2 = int(p2)
         pagesa = max(p1, p2)
 
-    nickb = soupb.find('h1', class_='nameSingle').find('div', class_='inner').a.get_text()
+    threadb.join()
+    soupb = threadb.get_soup()
+    nickb = soupb.find('h1', class_='nameSingle')
+    if nickb == None:
+        ss = 'error ' + a + ' ' + b
+        mylog(ss)
+        return {'error': 'error', 'rand': random.randint(0, 6)}
+    nickb = nickb.find('div', class_='inner').a.get_text()
     tb = soupb.find('h1', class_='nameSingle').find('small', class_='grey').get_text()
     b = tb[1 : ]
     avaterb = str(soupb.find('span', class_='avatarNeue avatarSize75'))
@@ -215,56 +233,10 @@ def run(a, b, f, cat):
     titemsb = threadb.get_result()
     itemsa.extend(titemsa)
     itemsb.extend(titemsb)
-    threadsa = []
-    if pagesa <= 3:
-        threadsa.append(myThread(cat, a, range(2, pagesa + 1)))
-    else:
-        tdnum = 2
-        if pagesa <= 8:
-            tdnum = 2
-        elif pagesa <= 15:
-            tdnum = 3
-        elif pagesa <= 25:
-            tdnum = 4
-        elif pagesa <= 35:
-            tdnum = 5
-        else:
-            tdnum = 6
-        threadsa.append(myThread(cat, a, range(2, pagesa / tdnum)))
-        for p in range(1, tdnum - 1):
-            threadsa.append(myThread(cat, a, range(pagesa * p / tdnum, pagesa * (p + 1) / tdnum)))
-        threadsa.append(myThread(cat, a, range(pagesa * (tdnum - 1) / tdnum, pagesa + 1)))
-    threadsb = []
-    if pagesb <= 3:
-        threadsb.append(myThread(cat, b, range(2, pagesb + 1)))
-    else:
-        tdnum = 2
-        if pagesb <= 8:
-            tdnum = 2
-        elif pagesb <= 15:
-            tdnum = 3
-        elif pagesb <= 25:
-            tdnum = 4
-        elif pagesb <= 35:
-            tdnum = 5
-        else:
-            tdnum = 6
-        threadsb.append(myThread(cat, b, range(2, pagesb / tdnum)))
-        for p in range(1, tdnum - 1):
-            threadsb.append(myThread(cat, b, range(pagesb * p / tdnum, pagesb * (p + 1) / tdnum)))
-        threadsb.append(myThread(cat, b, range(pagesb * (tdnum - 1) / tdnum, pagesb + 1)))
-    for x in threadsa:
-        x.start()
-    for x in threadsb:
-        x.start()
-    for x in threadsa:
-        x.join()
-        titemsa = x.get_result()
-        itemsa.extend(titemsa)
-    for x in threadsb:
-        x.join()
-        titemsb = x.get_result()
-        itemsb.extend(titemsb)
+    titemsa = get_items(cat, a, pagesa)
+    titemsb = get_items(cat, b, pagesb)
+    itemsa.extend(titemsa)
+    itemsb.extend(titemsb)
 
     for itema in itemsa:
         itemida = itema.a['href']
@@ -327,11 +299,9 @@ def run(a, b, f, cat):
 
                 break
     ss = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-    print ss
-    f.write(ss + '\n')
+    mylog(ss)
     ss = 'suc end'
-    print ss
-    f.write(ss + '\n')
+    mylog(ss)
     id1 = [[], [], []]; img1 = [[], [], []]; namechs1 = [[], [], []]; namejp1 = [[], [], []]; stara1 = [[], [], []]; starb1 = [[], [], []]
     tagsa1 = [[], [], []]; tagsb1 = [[], [], []]; datea1 = [[], [], []]; dateb1 = [[], [], []]; txta1 = [[], [], []]; txtb1 = [[], [], []]; tip1 = [[], [], []]
 
