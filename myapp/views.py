@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.cache import cache_page
 from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 import urllib2
 import time
 import random
@@ -18,6 +19,7 @@ from myapp.models import GameTag
 from myapp.models import Real
 from myapp.models import RealTag
 import sys
+import threading
 reload(sys)
 sys.setdefaultencoding('utf-8')
 f = open('log.txt', 'a')
@@ -28,11 +30,11 @@ def home(request):
     return HttpResponse(string)
 
 def bgmtools(request):
-    string = '呵呵哒'
+    string = '<a href="/bgmtools/contrast/">对比</a><br> \
+             <a href="/bgmtools/multitag/">多标签</a>'
     return HttpResponse(string)
 
-@cache_page(60 * 15)
-def contrast(request):
+def contrast(request, url):
     a = ''
     b = ''
     s = '***************new viewer****************'
@@ -57,8 +59,38 @@ def contrast(request):
         ss = '-------------------new post---------------------  ' + a + ' ' + b + ' type ' + str(len(txt)) + '  cat ' + cat
         print ss
         f.write(ss + '\n')
+        return HttpResponseRedirect('/bgmtools/contrast/' + cat + '@' + a + '&' + b)
+    elif url != '':
+        print url
+        url = url.split('@')
+        cat = url[0]
+        if cat != 'anime' and cat != 'book' and cat != 'music' and cat != 'game' and cat != 'real':
+            return render(request, 'contrast.html', {'dic': {'error': 'error', 'rand': random.randint(0, 6)}})
+        if len(url) != 2:
+            url = ['', '']
+        else:
+            url = url[1].split('&')
+        a = ''
+        b = ''
+        if len(url) == 2:
+            a = url[0].strip()
+            b = url[1].strip()
+        elif len(url) == 1:
+            a = url[0].strip()
+        else:
+            return render(request, 'contrast.html', {'dic': {'error': 'error', 'rand': random.randint(0, 6)}})
+        if a == '' and b == '':
+            a = getrand(3, cat)
+            b = getrand(3, cat)
+        elif a == '':
+            a = getrand(5, cat)
+        elif b == '':
+            b = getrand(5, cat)
         dic = run(a, b, f, cat)
-
+        ss = '-------------------new post---------------------  ' + a + ' ' + b + ' type ' + str(len(url)) + '  cat ' + cat
+        print ss
+        f.write(ss + '\n')
+    f.flush()
     return render(request, 'contrast.html', {'dic' : dic})
 
 def getrand(times, cat):
@@ -86,6 +118,33 @@ def getrand(times, cat):
             mxcnt = tcnt
     return rt
 
+class myThread(threading.Thread):
+    def __init__(self,cat, id, pages):
+        threading.Thread.__init__(self)
+        self.cat = cat
+        self.id = id
+        self.pages = pages
+        self.result = []
+        self.str = ''
+        self.soup = ''
+    def run(self):
+        for page in self.pages:
+            ss = 'page' + str(page)
+            print ss
+            f.write(ss + '\n')
+            url = 'https://bgm.tv/' + self.cat + '/list/' + self.id + '/collect?page=' + str(page)
+            myheaders = {'User-Agent': 'Chrome/61.0.3163.100'}
+            req = urllib2.Request(url=url, headers=myheaders)
+            self.str = urllib2.urlopen(req).read()
+            self.soup = BeautifulSoup(self.str, 'html.parser', from_encoding='utf-8')
+            self.result.extend(self.soup.find('ul', class_='browserFull'))
+    def get_result(self):
+        return self.result
+    def get_str(self):
+        return self.str
+    def get_soup(self):
+        return self.soup
+
 def run(a, b, f, cat):
     ss = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
     print ss
@@ -96,60 +155,116 @@ def run(a, b, f, cat):
     stara = []; starb = []; tagsa = []; tagsb = []
     datea = []; dateb = []; txta = []; txtb = []
     rand = random.randint(0, 6)
-    myheaders = {'User-Agent': 'Chrome/61.0.3163.100'}
-    flaga = 1
-    flagb = 1
-    for i in range(1, 999999):
-        print 'page' + str(i)
-        f.write('page' + str(i) + '\n')
-        if flaga == 1:
-            urla = 'https://bgm.tv/' + cat + '/list/' + a + '/collect?page=' + str(i)
-            reqa = urllib2.Request(url=urla, headers=myheaders)
-            stra = urllib2.urlopen(reqa).read()
-            soupa = BeautifulSoup(stra, 'html.parser', from_encoding='utf-8')
-            titemsa = soupa.find('ul', class_='browserFull')
-        if flagb == 1:
-            urlb = 'https://bgm.tv/' + cat + '/list/' + b + '/collect?page=' + str(i)
-            reqb = urllib2.Request(url=urlb, headers=myheaders)
-            strb = urllib2.urlopen(reqb).read()
-            soupb = BeautifulSoup(strb, 'html.parser', from_encoding='utf-8')
-            titemsb = soupb.find('ul', class_='browserFull')
 
-        if i == 1:
-            if (stra.find('数据库中没有查询到该用户的信息') != -1 or strb.find('数据库中没有查询到该用户的信息') != -1):
-                ss = 'error ' + a + ' ' + b
-                print ss
-                f.write(ss + '\n')
-                return {'error': 'error', 'rand': random.randint(0, 6)}
+    threada = myThread(cat, a, range(1, 2))
+    threadb = myThread(cat, b, range(1, 2))
+    threada.start()
+    threadb.start()
+    threada.join()
+    threadb.join()
+    stra = threada.get_str()
+    strb = threadb.get_str()
+    soupa = threada.get_soup()
+    soupb = threadb.get_soup()
 
-            nicka = soupa.find('h1', class_='nameSingle').find('div', class_='inner').a.get_text()
-            ta = soupa.find('h1', class_='nameSingle').find('small', class_='grey').get_text()
-            a = ta[1 : ]
-            avatera = str(soupa.find('span', class_='avatarNeue avatarSize75'))
-            avatera = avatera[avatera.find('/') + 2 : avatera.find(')') - 1]
+    if (stra.find('数据库中没有查询到该用户的信息') != -1 or strb.find('数据库中没有查询到该用户的信息') != -1):
+        ss = 'error ' + a + ' ' + b
+        print ss
+        f.write(ss + '\n')
+        return {'error': 'error', 'rand': random.randint(0, 6)}
 
-            nickb = soupb.find('h1', class_='nameSingle').find('div', class_='inner').a.get_text()
-            tb = soupb.find('h1', class_='nameSingle').find('small', class_='grey').get_text()
-            b = tb[1 : ]
-            avaterb = str(soupb.find('span', class_='avatarNeue avatarSize75'))
-            avaterb = avaterb[avaterb.find('/') + 2 : avaterb.find(')') - 1]
+    nicka = soupa.find('h1', class_='nameSingle').find('div', class_='inner').a.get_text()
+    ta = soupa.find('h1', class_='nameSingle').find('small', class_='grey').get_text()
+    a = ta[1 : ]
+    avatera = str(soupa.find('span', class_='avatarNeue avatarSize75'))
+    avatera = avatera[avatera.find('/') + 2 : avatera.find(')') - 1]
+    pagesa = soupa.find_all('a', class_='p')
+    if len(pagesa) == 0:
+        pagesa = 1
+    else:
+        p1 = pagesa[-1]['href']
+        p2 = pagesa[-2]['href']
+        p1 = p1[p1.find('=') + 1:]
+        p2 = p2[p2.find('=') + 1:]
+        p1 = int(p1)
+        p2 = int(p2)
+        pagesa = max(p1, p2)
 
-            print nicka,nickb
-            ss = a + ' ' + b
-            f.write(ss + '\n')
+    nickb = soupb.find('h1', class_='nameSingle').find('div', class_='inner').a.get_text()
+    tb = soupb.find('h1', class_='nameSingle').find('small', class_='grey').get_text()
+    b = tb[1 : ]
+    avaterb = str(soupb.find('span', class_='avatarNeue avatarSize75'))
+    avaterb = avaterb[avaterb.find('/') + 2 : avaterb.find(')') - 1]
+    pagesb = soupb.find_all('a', class_='p')
+    if len(pagesb) == 0:
+        pagesb = 1
+    else:
+        p1 = pagesb[-1]['href']
+        p2 = pagesb[-2]['href']
+        p1 = p1[p1.find('=') + 1:]
+        p2 = p2[p2.find('=') + 1:]
+        p1 = int(p1)
+        p2 = int(p2)
+        pagesb = max(p1, p2)
 
-        if len(titemsa) == 0 and len(titemsb) == 0:
-            break
-        if len(titemsa) == 0:
-            flaga = 0
-        if len(titemsb) == 0:
-            flagb = 0
-        for itema in titemsa:
-            itemsa.append(itema)
-        for itemb in titemsb:
-            itemsb.append(itemb)
-        if len(itemsa) == 0 or len(itemsb) == 0:
-            break
+    print nicka, nickb
+    ss = a + ' ' + b
+    f.write(ss + '\n')
+
+    titemsa = threada.get_result()
+    titemsb = threadb.get_result()
+    itemsa.extend(titemsa)
+    itemsb.extend(titemsb)
+    threadsa = []
+    if pagesa <= 3:
+        threadsa.append(myThread(cat, a, range(2, pagesa + 1)))
+    else:
+        tdnum = 2
+        if pagesa <= 8:
+            tdnum = 2
+        elif pagesa <= 15:
+            tdnum = 3
+        elif pagesa <= 25:
+            tdnum = 4
+        elif pagesa <= 35:
+            tdnum = 5
+        else:
+            tdnum = 6
+        threadsa.append(myThread(cat, a, range(2, pagesa / tdnum)))
+        for p in range(1, tdnum - 1):
+            threadsa.append(myThread(cat, a, range(pagesa * p / tdnum, pagesa * (p + 1) / tdnum)))
+        threadsa.append(myThread(cat, a, range(pagesa * (tdnum - 1) / tdnum, pagesa + 1)))
+    threadsb = []
+    if pagesb <= 3:
+        threadsb.append(myThread(cat, b, range(2, pagesb + 1)))
+    else:
+        tdnum = 2
+        if pagesb <= 8:
+            tdnum = 2
+        elif pagesb <= 15:
+            tdnum = 3
+        elif pagesb <= 25:
+            tdnum = 4
+        elif pagesb <= 35:
+            tdnum = 5
+        else:
+            tdnum = 6
+        threadsb.append(myThread(cat, b, range(2, pagesb / tdnum)))
+        for p in range(1, tdnum - 1):
+            threadsb.append(myThread(cat, b, range(pagesb * p / tdnum, pagesb * (p + 1) / tdnum)))
+        threadsb.append(myThread(cat, b, range(pagesb * (tdnum - 1) / tdnum, pagesb + 1)))
+    for x in threadsa:
+        x.start()
+    for x in threadsb:
+        x.start()
+    for x in threadsa:
+        x.join()
+        titemsa = x.get_result()
+        itemsa.extend(titemsa)
+    for x in threadsb:
+        x.join()
+        titemsb = x.get_result()
+        itemsb.extend(titemsb)
 
     for itema in itemsa:
         itemida = itema.a['href']
@@ -267,8 +382,7 @@ def multitag(request, url):
         url = 'anime'
     if request.method == 'POST':
         print request.POST
-        f.write('++++++++++++++++++  ' + str(request) + '\n')
-        f.flush()
+        f.write('++++++++++++++++++  ' + str(request.POST) + '\n')
         part = request.POST['part']
         page = request.POST['page']
         curpage = request.POST['curpage']
@@ -285,10 +399,12 @@ def multitag(request, url):
                 page = int(request.POST['page'])
             except:
                 page = 1
-
         result = []
         if part == 'part1':
             tag = request.POST['data']
+            print tag
+            f.write(tag + '\n')
+            f.flush()
             if tag == '':
                 all = []
                 if url == 'anime':
@@ -320,6 +436,9 @@ def multitag(request, url):
                 result = result.order_by('name')
         else:
             tag = request.POST['tag']
+            print tag
+            f.write(tag + '\n')
+            f.flush()
             cat = request.POST['cat']
             time = request.POST['time']
             sorttp = request.POST['sort']
@@ -332,9 +451,7 @@ def multitag(request, url):
                 if cat == '其他':
                     cat = ''
                 if url == 'game':
-                    print len(result)
                     result = result.filter(platform__contains = cat)
-                    print len(result)
                 elif url == 'real':
                     result = result.filter(country__contains = cat)
                 elif url == 'anime' or url == 'music':
