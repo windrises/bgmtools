@@ -240,8 +240,11 @@ def run(a, b, f, cat):
         titemsa = get_items(cat, a, pagesa)
         itemsa.extend(titemsa)
     if pagesb > 1:
-        titemsb = get_items(cat, b, pagesb)
-        itemsb.extend(titemsb)
+        if a != b:
+            titemsb = get_items(cat, b, pagesb)
+            itemsb.extend(titemsb)
+        else:
+            itemsb.extend(titemsa)
 
     for itema in itemsa:
         itemida = itema.a['href']
