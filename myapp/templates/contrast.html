@@ -80,6 +80,9 @@
   <div id="columnSubjectBrowserA" class="column">
     <ul id="browserItemList" class="browserFull">
      <table>
+         {% if dic.timeout == 1 %}
+             <tr><td><div id="colunmNotice2"><h2>Warning:部分页面在爬取时出现超时，结果可能存在遗漏！</h2></div></td><td></td></tr>
+         {% endif %}
          <tr><td><div id="colunmNotice2"><h2>共同好评</h2></div></td><td></td></tr>
          {% for info in dic.info0%}
      <tr><td>

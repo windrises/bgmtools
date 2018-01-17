@@ -23,6 +23,7 @@ import threading
 reload(sys)
 sys.setdefaultencoding('utf-8')
 f = open('log.txt', 'a')
+timeout = 0
 
 # Create your views here.
 def mylog(s):
@@ -94,6 +95,8 @@ def contrast(request, url):
             tp = 1
         ss = '-------------------new post---------------------  ' + a + ' ' + b + ' type ' + str(tp) + '  cat ' + cat
         mylog(ss)
+        global timeout
+        timeout = 0
         dic = run(a, b, f, cat)
     f.flush()
     return render(request, 'contrast.html', {'dic' : dic})
@@ -131,18 +134,26 @@ class myThread(threading.Thread):
         self.pages = pages
         self.result = []
         self.str = ''
-        self.soup = ''
+        self.soup = BeautifulSoup(self.str, 'html.parser', from_encoding='utf-8')
 
     def run(self):
         for page in self.pages:
-            ss = 'page' + str(page)
-            mylog(ss)
             url = 'https://bgm.tv/' + self.cat + '/list/' + self.uid + '/collect?page=' + str(page)
             myheaders = {'User-Agent': 'Chrome/61.0.3163.100'}
             req = urllib2.Request(url=url, headers=myheaders)
-            self.str = urllib2.urlopen(req).read()
-            self.soup = BeautifulSoup(self.str, 'html.parser', from_encoding='utf-8')
-            self.result.extend(self.soup.find('ul', class_='browserFull'))
+            try:
+                self.str = urllib2.urlopen(req, timeout=8)
+            except:
+                global timeout
+                timeout = 1
+                ss = 'page' + str(page) + ' timeout!'
+                mylog(ss)
+            else:
+                self.str = self.str.read()
+                self.soup = BeautifulSoup(self.str, 'html.parser', from_encoding='utf-8')
+                self.result.extend(self.soup.find('ul', class_='browserFull'))
+                ss = 'page' + str(page) + ' done!'
+                mylog(ss)
     def get_result(self):
         return self.result
     def get_soup(self):
@@ -169,6 +180,7 @@ def run(a, b, f, cat):
     ss = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
     print ss
     f.write(ss + '\n')
+    global timeout
     nicka = ''; nickb = ''; avatera = ''; avaterb = ''
     itemsa = []; itemsb = []
     id = []; img = []; namechs = []; namejp = []; tip = []
@@ -333,8 +345,8 @@ def run(a, b, f, cat):
             stara1[2].append(stara[i]); starb1[2].append(starb[i]); tagsa1[2].append(tagsa[i]); tagsb1[2].append(tagsb[i])
             datea1[2].append(datea[i]); dateb1[2].append(dateb[i]); txta1[2].append(txta[i]); txtb1[2].append(txtb[i]); tip1[2].append(tip[i])
 
-    dic = {'a' : a, 'b' : b, 'nicka' : nicka, 'nickb' : nickb, 'avatera' : avatera, 'avaterb' : avaterb, 'rand' : rand, 'cat' : cat,
-        'info0' : zip(id1[0], img1[0], namechs1[0], namejp1[0], stara1[0], starb1[0], tagsa1[0], tagsb1[0], datea1[0], dateb1[0], txta1[0], txtb1[0], tip1[0]),
+    dic = {'a': a, 'b': b, 'nicka': nicka, 'nickb': nickb, 'avatera': avatera, 'avaterb': avaterb, 'rand': rand, 'cat': cat, 'timeout': timeout,
+        'info0': zip(id1[0], img1[0], namechs1[0], namejp1[0], stara1[0], starb1[0], tagsa1[0], tagsb1[0], datea1[0], dateb1[0], txta1[0], txtb1[0], tip1[0]),
         'info1': zip(id1[1], img1[1], namechs1[1], namejp1[1], stara1[1], starb1[1], tagsa1[1], tagsb1[1], datea1[1], dateb1[1], txta1[1], txtb1[1], tip1[1]),
         'info2': zip(id1[2], img1[2], namechs1[2], namejp1[2], stara1[2], starb1[2], tagsa1[2], tagsb1[2], datea1[2], dateb1[2], txta1[2], txtb1[2], tip1[2])}
     return dic
