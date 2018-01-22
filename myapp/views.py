@@ -137,6 +137,7 @@ class myThread(threading.Thread):
         self.soup = BeautifulSoup(self.str, 'html.parser', from_encoding='utf-8')
 
     def run(self):
+        global timeout
         for page in self.pages:
             url = 'https://bgm.tv/' + self.cat + '/list/' + self.uid + '/collect?page=' + str(page)
             myheaders = {'User-Agent': 'Chrome/61.0.3163.100'}
@@ -144,16 +145,24 @@ class myThread(threading.Thread):
             try:
                 self.str = urllib2.urlopen(req, timeout=8)
             except:
-                global timeout
                 timeout = 1
                 ss = 'page' + str(page) + ' timeout!'
                 mylog(ss)
             else:
-                self.str = self.str.read()
-                self.soup = BeautifulSoup(self.str, 'html.parser', from_encoding='utf-8')
-                self.result.extend(self.soup.find('ul', class_='browserFull'))
-                ss = 'page' + str(page) + ' done!'
-                mylog(ss)
+                try:
+                    self.str = self.str.read()
+                except:
+                    timeout = 1
+                    ss = 'page' + str(page) + ' read timeout!'
+                    mylog(ss)
+                else:
+                    self.soup = BeautifulSoup(self.str, 'html.parser', from_encoding='utf-8')
+                    try:
+                        self.result.extend(self.soup.find('ul', class_='browserFull'))
+                    except:
+                        pass
+                    ss = 'page' + str(page) + ' done!'
+                    mylog(ss)
     def get_result(self):
         return self.result
     def get_soup(self):
