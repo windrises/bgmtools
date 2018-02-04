@@ -44,7 +44,7 @@ def contrast(request, url):
     b = ''
     s = '***************new viewer****************'
     mylog(s)
-    dic = {'rand' : random.randint(0, 6)}
+    dic = {'rand': random.randint(0, 6)}
     if request.method == 'POST':
         cat = request.POST['cat']
         txt = request.POST['search_text']
@@ -62,25 +62,34 @@ def contrast(request, url):
             b = getrand(3, cat)
         ss = '-------------------new post---------------------  ' + a + ' ' + b + ' type ' + str(len(txt)) + '  cat ' + cat
         mylog(ss)
-        return HttpResponseRedirect('/bgmtools/contrast/' + cat + '@' + a + '&' + b)
-    elif url != '':
+        return HttpResponseRedirect('/bgmtools/contrast/?category=' + cat + '&id1=' + a + '&id2=' + b)
+    elif url != '' or len(request.GET.keys()) > 0:
         mylog(url)
-        url = url.split('@')
-        cat = url[0]
-        if cat != 'anime' and cat != 'book' and cat != 'music' and cat != 'game' and cat != 'real':
-            return render(request, 'contrast.html', {'dic': {'error': 'error', 'rand': random.randint(0, 6)}})
-        if len(url) != 2:
-            url = ['', '']
-        else:
-            url = url[1].split('&')
+        cat = ''
         a = ''
         b = ''
-        if len(url) == 2:
-            a = url[0].strip()
-            b = url[1].strip()
-        elif len(url) == 1:
-            a = url[0].strip()
+        if url.find('@') != -1:
+            url = url.split('@')
+            cat = url[0]
+            if len(url) != 2:
+                url = ['', '']
+            else:
+                url = url[1].split('&')
+
+            if len(url) == 2:
+                a = url[0].strip()
+                b = url[1].strip()
+            elif len(url) == 1:
+                a = url[0].strip()
+            else:
+                return render(request, 'contrast.html', {'dic': {'error': 'error', 'rand': random.randint(0, 6)}})
         else:
+            cat = request.GET.get('category')
+            a = request.GET.get('id1')
+            b = request.GET.get('id2')
+            if cat is None or a is None or b is None:
+                return render(request, 'contrast.html', {'dic': {'error': 'error', 'rand': random.randint(0, 6)}})
+        if cat != 'anime' and cat != 'book' and cat != 'music' and cat != 'game' and cat != 'real':
             return render(request, 'contrast.html', {'dic': {'error': 'error', 'rand': random.randint(0, 6)}})
         tp = 2
         if a == '' and b == '':
@@ -99,7 +108,7 @@ def contrast(request, url):
         timeout = 0
         dic = run(a, b, f, cat)
     f.flush()
-    return render(request, 'contrast.html', {'dic' : dic})
+    return render(request, 'contrast.html', {'dic': dic})
 
 def getrand(times, cat):
     mxusr = 373679
@@ -120,7 +129,7 @@ def getrand(times, cat):
         else:
             p2 = ss.find('(', p1)
             p3 = ss.find(')', p2)
-            tcnt = int(ss[p2 + 1 : p3])
+            tcnt = int(ss[p2 + 1: p3])
         if tcnt >= mxcnt:
             rt = a
             mxcnt = tcnt
@@ -212,7 +221,7 @@ def run(a, b, f, cat):
     ta = soupa.find('h1', class_='nameSingle').find('small', class_='grey').get_text()
     a = ta[1 : ]
     avatera = str(soupa.find('span', class_='avatarNeue avatarSize75'))
-    avatera = avatera[avatera.find('/') + 2 : avatera.find(')') - 1]
+    avatera = avatera[avatera.find('/') + 2: avatera.find(')') - 1]
     pagesa = soupa.find_all('a', class_='p')
     if len(pagesa) == 0:
         pagesa = 1
@@ -269,10 +278,10 @@ def run(a, b, f, cat):
 
     for itema in itemsa:
         itemida = itema.a['href']
-        itemida = itemida[itemida.rfind('/') + 1 : ]
+        itemida = itemida[itemida.rfind('/') + 1:]
         for itemb in itemsb:
             itemidb = itemb.a['href']
-            itemidb = itemidb[itemidb.rfind('/') + 1 : ]
+            itemidb = itemidb[itemidb.rfind('/') + 1:]
             if itemida == itemidb:
                 id.append(itemida)
                 img.append(itema.img['src'])
@@ -327,7 +336,7 @@ def run(a, b, f, cat):
                     txtb.append('')
 
                 break
-    ss = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+    ss = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     mylog(ss)
     ss = 'suc end'
     mylog(ss)
@@ -339,8 +348,8 @@ def run(a, b, f, cat):
             sa = 10
             sb = 1
         else:
-            sa = int(stara[i][6 : stara[i].find(' ')])
-            sb = int(starb[i][6 : starb[i].find(' ')])
+            sa = int(stara[i][6: stara[i].find(' ')])
+            sb = int(starb[i][6: starb[i].find(' ')])
         if sa >= 7 and sb >= 7:
             id1[0].append(id[i]); img1[0].append(img[i]); namechs1[0].append(namechs[i]); namejp1[0].append(namejp[i])
             stara1[0].append(stara[i]); starb1[0].append(starb[i]); tagsa1[0].append(tagsa[i]); tagsb1[0].append(tagsb[i])
@@ -374,7 +383,7 @@ def getAll(url):
 
 @cache_page(60 * 15)
 def multitag(request, url):
-    print request,url
+    print request, url
     f.write(str(request) + '  ----------------  ' + str(url) + '\n')
     f.flush()
     if url != 'anime' and url != 'book' and url != 'music' and url != 'game' and url != 'real':
@@ -418,7 +427,7 @@ def multitag(request, url):
                     all = RealTag.objects.all()
                 all = all.order_by('-cnt')
                 onepage = 80
-                maxpage = (len(all) + onepage - 1)/ onepage
+                maxpage = (len(all) + onepage - 1) / onepage
                 if page > maxpage or page == 'maxpage':
                     page = maxpage
                 if page < 1:
@@ -428,7 +437,7 @@ def multitag(request, url):
                 data = []
                 for i in range(start, end):
                     data.append([all[i].name, all[i].cnt])
-                return JsonResponse({'data': data, 'page' : page, 'maxpage' : maxpage})
+                return JsonResponse({'data': data, 'page': page, 'maxpage': maxpage})
             else:
                 result = getAll(url)
                 result = result.filter(tag__name=tag)
@@ -445,18 +454,18 @@ def multitag(request, url):
             tag = tag.split('&')
             result = getAll(url)
             for i in range(0, len(tag) - 1):
-                result = result.filter(tag__name = tag[i])
+                result = result.filter(tag__name=tag[i])
             if cat != '全部':
                 if cat == '其他':
                     cat = ''
                 if url == 'game':
-                    result = result.filter(platform__contains = cat)
+                    result = result.filter(platform__contains=cat)
                 elif url == 'real':
-                    result = result.filter(country__contains = cat)
+                    result = result.filter(country__contains=cat)
                 elif url == 'anime' or url == 'music':
-                    result = result.filter(cat = cat)
+                    result = result.filter(cat=cat)
             if time != 'timeall':
-                result = result.filter(time__contains = time)
+                result = result.filter(time__contains=time)
 
             pre = ''
             if sorttp[1] == '1':
@@ -518,7 +527,7 @@ def multitag(request, url):
         hottag.sort(key=lambda d:d[1], reverse=True)
         hottag = hottag[ : 100]
 
-        return JsonResponse({'data' : data,'rand' : random.randint(0, 6), 'tag' : hottag, 'page' : page, 'maxpage' : maxpage})
+        return JsonResponse({'data': data,'rand': random.randint(0, 6), 'tag': hottag, 'page': page, 'maxpage': maxpage})
     return render(request, 'multitag_' + url + '.html')
 
 
