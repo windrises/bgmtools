@@ -111,10 +111,10 @@ def contrast(request, url):
     return render(request, 'contrast.html', {'dic': dic})
 
 def getrand(times, cat):
-    mxusr = 373679
+    mxusr = 399029
     mxcnt = 0
     rt = ''
-    for i in range(0 , times):
+    for i in range(0, times):
         tcnt = 0
         a = str(random.randint(1, mxusr))
         myheaders = {'User-Agent': 'Chrome/61.0.3163.100'}
@@ -195,7 +195,7 @@ def get_items(cat, uid, pages):
     return items
 
 def run(a, b, f, cat):
-    ss = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+    ss = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     print ss
     f.write(ss + '\n')
     global timeout
@@ -219,7 +219,7 @@ def run(a, b, f, cat):
         return {'error': 'error', 'rand': random.randint(0, 6)}
     nicka = nicka.find('div', class_='inner').a.get_text()
     ta = soupa.find('h1', class_='nameSingle').find('small', class_='grey').get_text()
-    a = ta[1 : ]
+    a = ta[1:]
     avatera = str(soupa.find('span', class_='avatarNeue avatarSize75'))
     avatera = avatera[avatera.find('/') + 2: avatera.find(')') - 1]
     pagesa = soupa.find_all('a', class_='p')
@@ -243,9 +243,9 @@ def run(a, b, f, cat):
         return {'error': 'error', 'rand': random.randint(0, 6)}
     nickb = nickb.find('div', class_='inner').a.get_text()
     tb = soupb.find('h1', class_='nameSingle').find('small', class_='grey').get_text()
-    b = tb[1 : ]
+    b = tb[1:]
     avaterb = str(soupb.find('span', class_='avatarNeue avatarSize75'))
-    avaterb = avaterb[avaterb.find('/') + 2 : avaterb.find(')') - 1]
+    avaterb = avaterb[avaterb.find('/') + 2: avaterb.find(')') - 1]
     pagesb = soupb.find_all('a', class_='p')
     if len(pagesb) == 0:
         pagesb = 1
@@ -264,17 +264,18 @@ def run(a, b, f, cat):
 
     titemsa = threada.get_result()
     titemsb = threadb.get_result()
-    itemsa.extend(titemsa)
-    itemsb.extend(titemsb)
-    if pagesa > 1:
-        titemsa = get_items(cat, a, pagesa)
+    if len(titemsa) > 0 and len(titemsb) > 0:
         itemsa.extend(titemsa)
-    if pagesb > 1:
-        if a != b:
-            titemsb = get_items(cat, b, pagesb)
-            itemsb.extend(titemsb)
-        else:
-            itemsb.extend(titemsa)
+        itemsb.extend(titemsb)
+        if pagesa > 1:
+            titemsa = get_items(cat, a, pagesa)
+            itemsa.extend(titemsa)
+        if pagesb > 1:
+            if a != b:
+                titemsb = get_items(cat, b, pagesb)
+                itemsb.extend(titemsb)
+            else:
+                itemsb.extend(titemsa)
 
     for itema in itemsa:
         itemida = itema.a['href']
@@ -288,7 +289,7 @@ def run(a, b, f, cat):
                 tip.append(itema.find('p', class_='info tip').get_text())
                 namechs.append(itema.find('a', class_='l').get_text())
                 tnamejp = itema.find('small', class_='grey')
-                if not tnamejp is None:
+                if tnamejp is not None:
                     namejp.append(tnamejp.get_text())
                 else:
                     namejp.append('')
@@ -296,7 +297,7 @@ def run(a, b, f, cat):
                 staraflag = 0
                 for i in range(1, 11):
                     tstara = itema.find('span', class_='sstars' + str(i) + ' starsinfo')
-                    if not tstara is None:
+                    if tstara is not None:
                         staraflag = 1
                         stara.append('sstars' + str(i) + ' starsinfo')
                         break
@@ -304,12 +305,12 @@ def run(a, b, f, cat):
                     stara.append('None')
                 datea.append(itema.find('span', class_='tip_j').get_text())
                 ttagsa = itema.find('span', class_='tip')
-                if not ttagsa is None:
+                if ttagsa is not None:
                     tagsa.append(ttagsa.get_text())
                 else:
                     tagsa.append('')
                 ttxta = itema.find('div', class_='text')
-                if not ttxta is None:
+                if ttxta is not None:
                     txta.append(ttxta.get_text())
                 else:
                     txta.append('')
@@ -317,7 +318,7 @@ def run(a, b, f, cat):
                 starbflag = 0
                 for i in range(1, 11):
                     tstarb = itemb.find('span', class_='sstars' + str(i) + ' starsinfo')
-                    if not tstarb is None:
+                    if tstarb is not None:
                         starbflag = 1
                         starb.append('sstars' + str(i) + ' starsinfo')
                         break
@@ -325,16 +326,15 @@ def run(a, b, f, cat):
                     starb.append('None')
                 dateb.append(itemb.find('span', class_='tip_j').get_text())
                 ttagsb = itemb.find('span', class_='tip')
-                if not ttagsb is None:
+                if ttagsb is not None:
                     tagsb.append(ttagsb.get_text())
                 else:
                     tagsb.append('')
                 ttxtb = itemb.find('div', class_='text')
-                if not ttxtb is None:
+                if ttxtb is not None:
                     txtb.append(ttxtb.get_text())
                 else:
                     txtb.append('')
-
                 break
     ss = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     mylog(ss)
