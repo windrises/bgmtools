@@ -7,4 +7,3 @@ Bangumi.tv小工具，使用Django开发
 
 3、时光机 查看条目历史评分 https://windrises.net/bgmtools/review
 
-                      api: https://windrises.net/bgmtools/review/api?id=1
