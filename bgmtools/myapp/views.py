@@ -504,7 +504,7 @@ def multitag(request, url):
     return render(request, 'multitag.html', {'cat': url, 'cat_chs': cat_dic[url],'cat_focus': json.dumps(url)})
 
 def get_timeid(time, interval):
-    time = time.split('-')
+    time = time.split('.')
     dt1 = datetime.datetime(1900, 1, 1)
     dt2 = ''
     dt3 = ''
@@ -601,8 +601,8 @@ def review_chart(request, url):
         else:
             rank = rank.split('|')
             rank_time = 0
-            if rank[0].find('-') != -1:
-                if len(rank[0].split('-')) != 3:
+            if rank[0].find('.') != -1:
+                if len(rank[0].split('.')) != 3:
                     return JsonResponse({'error': '输入的排名日期不对哦'})
                 rank_time = get_timeid(rank[0], interval)[0]
                 if rank_time == -1:
@@ -697,7 +697,7 @@ def review_chart(request, url):
                         break
                 if len(period_array) == 0 or flag == 1:
                     data['time'].append(x.timestr)
-                    data['score'].append(x.score)
+                    data['score'].append(round(x.score, 6))
                     data['rank'].append(x.rank)
                     data['people'].append(x.people)
         else:
@@ -733,7 +733,7 @@ def review_chart(request, url):
                             flag = 1
                             break
                     if len(period_array) == 0 or flag == 1:
-                        score_data.append(x.score)
+                        score_data.append(round(x.score, 4))
                         rank_data.append(x.rank)
                         people_data.append(x.people)
                         timeid.append(x.timeid)
@@ -839,7 +839,7 @@ def review_list(request, url):
                 star = ''
             if star != '':
                 starstr = 'sstars' + str(int(round(star))) + ' starsinfo'
-                star = str('%.1f' % star)
+                star = '%.1f' % star
             votes = x.votes
             if votes == 0:
                 votes = ''

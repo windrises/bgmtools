@@ -36,7 +36,7 @@
 </div>
 </div>
 <div id="main" class="png_bg" style="width: 1100px">
-<div id="header" class="part1">
+<div id="header">
 <h1>Bangumi 时光机</h1>
 </div>
 
@@ -48,27 +48,24 @@
 <p class="text">1、本工具旨在利用现有数据尝试还原Bangumi条目的历史评分<br/>
                 2、可以选择按条目检索或者按名次检索<br/>
                 3、也可以在顶部 时光机 下拉栏里找到 历史排行榜<br/>
-                4、或者点击页脚链接获取更多信息<br/><br/><br/><br/><br/><br/>
-    <br/><br/><br/><br/></p>
+                4、或者点击页脚链接获取更多信息<br/></p>
 </div>
 </div>
 </div>
 
 <div id="columnSubjectBrowseA" class="column part2">
-<ul id="lm_controls"><li class="lm_maximise" title="最大化"></li></ul>
 <div id="score_chart" class="part1" style="width:800px;height:420px"></div>
 <div id="multi-score_chart" class="part2" style="width:800px;height:420px"></div>
 <div id="multi-rank_chart" class="part2" style="width:800px;height:420px"></div>
 <div id="multi-people_chart" class="part2" style="width:800px;height:420px"></div>
-<div class="message"></div>
 </div>
 <div id="columnSubjectBrowserB" class="column">
 <div class="sideInner">
 <h2 class="subtitle">按条目检索</h2>
 <ul class="grouped clearit">
 <li>
-<textarea id="id_input" class="quick" name="id_input" placeholder="条目url或id  若多个，以空格或回车隔开"
-          style="margin: 3px 0; width: 228px; height: 37px;"></textarea>
+<textarea id="id_input" class="quick jq_watermark" name="id_input" required placeholder="条目url或id  若多个，以空格或回车隔开"
+          style="margin: 3px 0; width: 228px; height: 32px;"></textarea>
 </li>
 </ul>
 
@@ -81,24 +78,18 @@
 </select></h2>
 <ul class="grouped clearit">
 <li>
-<textarea id="rank_input" class="quick" name="id_input" placeholder="当前排名前十名条目：
-1~10
-历史上排名第一名和后三名条目：
-2017-7-16 1 -1~-3"
-          style="margin: 3px 0; width: 228px; height: 65px;"></textarea>
+<textarea id="rank_input" class="quick jq_watermark" name="id_input" required placeholder="当前排名前十名条目：<br/>
+1~10<br/>历史上排名第一名和后三名条目：<br/>2017.7.16 1 -1~-3"
+          style="margin: 3px 0; width: 228px; height: 68px;"></textarea>
 </li>
 </ul>
 
 <h2 class="subtitle">时间段 / 可选</h2>
 <ul class="grouped clearit">
 <li>
-<textarea id="period_input" class="quick" name="id_input" placeholder="2017
-2017~
-~2017
-2017-7
-2017-6~2017-8
-2008 2017~2017-7-16"
-          style="margin: 3px 0; width: 228px; height: 90px;"></textarea>
+<textarea id="period_input" class="quick jq_watermark" name="id_input" required placeholder="2017<br/>
+2017~<br/>~2017<br/>2017.7<br/>2017.6~2017.8<br/>2008 2017~2017.7.16"
+          style="margin: 3px 0; width: 228px; height: 104px;"></textarea>
 </li>
 </ul>
 
@@ -142,5 +133,6 @@
 <script type="text/javascript" src="/static/highcharts.js"></script>
 <script type="text/javascript" src="/static/exporting.js"></script>
 <script type="text/javascript" src="/static/highcharts-zh_CN.js"></script>
+<script type="text/javascript" src="/static/jquery.watermark.js"></script>
 
 </body></html>

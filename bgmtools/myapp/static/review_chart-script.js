@@ -257,6 +257,8 @@ $(document).ready(function () {
             }
             series.push({name: data[i].name, data: series_data});
         }
+        var point = '4';
+        if (titley != "分数") point = '0';
         var chart = Highcharts.chart(name, {
             chart: {
                 type: 'spline'
@@ -281,7 +283,7 @@ $(document).ready(function () {
             },
             tooltip: {
                 headerFormat: '<b>{series.name}</b><br>',
-                pointFormat: '{point.x:%e. %b}: {point.y:.2f}'
+                pointFormat: '{point.x:%b%e日}: {point.y:.' + point + 'f}'
             },
             plotOptions: {
                 spline: {
