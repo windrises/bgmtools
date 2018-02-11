@@ -804,6 +804,7 @@ def review_list(request, url):
             interval = 7
             if url != 'anime':
                 interval = 21
+            time = time.replace('-', '.')
             timeid = get_timeid(time, interval)[0]
         if timeid == -1:
             return JsonResponse({'error': 'error'})
