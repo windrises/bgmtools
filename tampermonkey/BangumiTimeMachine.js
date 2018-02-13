@@ -1,20 +1,26 @@
 // ==UserScript==
 // @name         Bangumi时光机
 // @namespace    https://windrises.net
-// @version      0.1
+// @version      0.3
 // @description  在Bangumi条目页使用，用于查看条目评分走势
 // @author       windrises
 // @require      http://code.jquery.com/jquery-1.8.3.min.js
 // @require      http://code.highcharts.com/highcharts.js
 // @require      http://code.highcharts.com/modules/exporting.js
-// @include      /^(https?://bgm\.tv|http://(bgm\.tv|bangumi\.tv|chii\.in))/subject/\d*($|/ep|/characters|/persons|/comments.*|/reviews|/board)
+// @include      /^(https?://bgm\.tv|http://(bgm\.tv|bangumi\.tv|chii\.in))/((subject/\d*($|/ep|/characters|/persons|/comments.*|/reviews|/board))|ep/\d*$)
 // ==/UserScript==
 
 (function() {
     $("#headerSubject").find("[class='navTabs clearit']").append("<li><a id='subject_review' href='javascript:void(0);'>评分走势</a></li>");
     var url = location.pathname;
-    url = url.split('/');
-    var id = url[2];
+    url = url.split("/");
+    var id;
+    var type = url[1];
+    if (type == "subject") id = url[2];
+    else {
+        id = $("#subject_inner_info").find("[class='avatar']").attr("href");
+        id = id.split("/")[2];
+    }
     $("#subject_review").click(function(){
         var html = '<div id="columnInSubjectA" class="column">' +
                    '<div id="score_chart" style="width:740px;height:420px"></div>' +
@@ -24,7 +30,7 @@
                    '<a href="/subject/' + id + '" class="l">/ 返回条目页面</a>' +
                    '</div>' +
                    '<div class="menu_inner">' +
-                   '<a href="https://windrises.net/bgmtools/review?id=' + id + '" class="l" target="_blank">/ 查看详情</a>' +
+                   '<a href="https://windrises.net/bgmtools/review?id=' + id + '" class="l">/ 查看详情</a>' +
                    '</div>' +
                    '</div>' +
                    '</div>';
@@ -88,7 +94,8 @@ function show_chart(data) {
                     color: Highcharts.getOptions().colors[1]
                 }
             },
-            opposite: true
+            opposite: true,
+            reversed: true
         }, { // Tertiary yAxis
             gridLineWidth: 0,
             title: {
