@@ -65,3 +65,7 @@ class AllAverageScore(models.Model):
     score = models.FloatField(default=0)
     class Meta:
         unique_together = ('timeid', 'sub_cat')
+
+class Cache(models.Model):
+    key = models.CharField(max_length=100)
+    value = models.CharField(max_length=10000)

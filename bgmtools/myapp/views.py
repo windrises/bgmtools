@@ -17,6 +17,7 @@ from myapp.models import User
 from myapp.models import Comment
 from myapp.models import AverageScore
 from myapp.models import AllAverageScore
+from myapp.models import Cache
 import sys
 import threading
 reload(sys)
@@ -485,19 +486,43 @@ def multitag(request, url):
             dic['starstr'] = starstr
             data.append(dic)
 
-        alltag = []
-        for x in result:
-            for y in x.tag.all():
-                alltag.append(y.name)
-        cnt = {}
-        for x in alltag:
-            if cnt.has_key(x):
-                cnt[x] += 1
+        hottag = []
+        cache_tag = ''
+        cache_value = ''
+        if part == 'part1':
+            cache_tag = tag
+        else:
+            if len(tag) == 2:
+                cache_tag = tag[0]
+            elif len(tag) == 1:
+                cache_tag = ' '
+        if len(hottag) == 0:
+            if cache_tag != '':
+                key = 'multitag ' + url + ' ' + cache_tag
+                cache_value = Cache.objects.filter(key=key)
+                if len(cache_value) != 0:
+                    cache_value = cache_value[0].value
+                else:
+                    cache_value = ''
+            if cache_value == '':
+                alltag = []
+                for x in result:
+                    for y in x.tag.all():
+                        alltag.append(y.name)
+                cnt = {}
+                for x in alltag:
+                    if cnt.has_key(x):
+                        cnt[x] += 1
+                    else:
+                        cnt[x] = 1
+                hottag = cnt.items()
+                hottag.sort(key=lambda d: d[1], reverse=True)
+                hottag = hottag[: 100]
             else:
-                cnt[x] = 1
-        hottag = cnt.items()
-        hottag.sort(key=lambda d: d[1], reverse=True)
-        hottag = hottag[: 100]
+                cache_value = cache_value.split(',')
+                for x in cache_value:
+                    x = x.split(' ')
+                    hottag.append((x[0], x[1]))
 
         return JsonResponse({'data': data, 'tag': hottag, 'page': page, 'maxpage': maxpage})
     cat_dic = {'anime': '动画', 'book': '书籍', 'music': '音乐', 'game': '游戏', 'real': '三次元'}
