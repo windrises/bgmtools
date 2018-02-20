@@ -276,6 +276,7 @@ $(document).ready(function () {
         $.ajax({
             type: 'POST',
             tradition: true,
+            async:false,
             data: {time: time, sort: sort, page: page, curpage: curpage},
             beforeSend: function () {
                 scroll();
@@ -283,7 +284,6 @@ $(document).ready(function () {
             },
             success: function (ret) {
                 if (ret.error != undefined) {
-                    bgmusume();
                     alert("请求出错");
                     return 0;
                 }
@@ -334,7 +334,7 @@ $(document).ready(function () {
             var x = ret.data[i];
             str += '\
             <li id="item_' + x['id'] + '" class="item odd clearit">\
-            <a href="https://bgm.tv/subject/' + x['id'] + '" class="subjectCover cover ll">\
+            <a target="_blank" href="https://bgm.tv/subject/' + x['id'] + '" class="subjectCover cover ll">\
             <span class="image">\
             <img src="' + x['img'] + '" class="cover">\
             </span>\
@@ -349,7 +349,7 @@ $(document).ready(function () {
             </ul>\
             </div>\
             <h3>\
-            <a href="https://bgm.tv/subject/' + x['id'] + '" class="l">' + x['namechs'] + '</a> <small class="grey">' + x['namejp'] + '</small>\
+            <a target="_blank" href="https://bgm.tv/subject/' + x['id'] + '" class="l">' + x['namechs'] + '</a> <small class="grey">' + x['namejp'] + '</small>\
             </h3>';
             if (x['rank'] != '123456789') {
                 str += '<span class="rank"><small>Rank </small>' + x['rank'] + '</span>';
