@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bangumi时光机
 // @namespace    https://windrises.net
-// @version      0.3
+// @version      0.5
 // @description  在Bangumi条目页使用，用于查看条目评分走势
 // @author       windrises
 // @require      http://code.jquery.com/jquery-1.8.3.min.js
@@ -30,7 +30,7 @@
                    '<a href="/subject/' + id + '" class="l">/ 返回条目页面</a>' +
                    '</div>' +
                    '<div class="menu_inner">' +
-                   '<a href="https://windrises.net/bgmtools/review?id=' + id + '" class="l">/ 查看详情</a>' +
+                   '<a href="https://windrises.net/bgmtools/review?id=' + id + '" class="l" target="_blank">/ 查看详情</a>' +
                    '</div>' +
                    '</div>' +
                    '</div>';
@@ -48,8 +48,6 @@
         });
     });
 })();
-
-function call(a){}
 
 function show_chart(data) {
     $('#score_chart').show();
