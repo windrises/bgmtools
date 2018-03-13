@@ -7,7 +7,7 @@
 // @require      http://code.jquery.com/jquery-1.8.3.min.js
 // @require      http://code.highcharts.com/highcharts.js
 // @require      http://code.highcharts.com/modules/exporting.js
-// @include      /^(https?://bgm\.tv|http://(bgm\.tv|bangumi\.tv|chii\.in))/((subject/\d*($|/ep|/characters|/persons|/comments.*|/reviews|/board))|ep/\d*$)
+// @include      /^(https?://bgm\.tv|http://(bgm\.tv|bangumi\.tv|chii\.in))/(subject|ep).*/
 // ==/UserScript==
 
 (function() {
