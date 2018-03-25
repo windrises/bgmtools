@@ -64,8 +64,8 @@ $(document).ready(function () {
     }
 
     function input_split(input) {
-        input = input.replace(/\r\n/g, "|").replace(/\n+/g, "|").replace(/\s+/g, "|");
-        input = input.replace(/(^\s+)|(\s+$)/g, "");
+        input = input.replace(/(^\s+)|(\s+$)/g, "").replace(/\s+/g, " ");
+        input = input.replace(/(\r\n)+/g, "|").replace(/\n+/g, "|").replace(/\s+/g, "|");
         return input;
     }
     $("#history_submit").click(function () {
@@ -75,7 +75,9 @@ $(document).ready(function () {
             var tid = id.split("|");
             id = "";
             for (var i in tid) {
-                id += "|" + tid[i].substring(tid[i].lastIndexOf("/") + 1);
+                if (tid[i] != "") {
+                    id += "|" + tid[i].substring(tid[i].lastIndexOf("/") + 1);
+                }
             }
             id = id.substring(1);
         }
@@ -179,7 +181,8 @@ $(document).ready(function () {
                         color: Highcharts.getOptions().colors[1]
                     }
                 },
-                opposite: true
+                opposite: true,
+                reversed: true
             }, { // Tertiary yAxis
                 gridLineWidth: 0,
                 title: {
@@ -259,6 +262,8 @@ $(document).ready(function () {
         }
         var point = '4';
         if (titley != "分数") point = '0';
+        var reversed = false;
+        if (titley == "名次") reversed =true;
         var chart = Highcharts.chart(name, {
             chart: {
                 type: 'spline'
@@ -279,7 +284,8 @@ $(document).ready(function () {
                 title: {
                     text: titley
                 },
-                min: 0
+                min: 0,
+                reversed: reversed
             },
             tooltip: {
                 headerFormat: '<b>{series.name}</b><br>',

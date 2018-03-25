@@ -707,6 +707,7 @@ def review_chart(request, url):
                 name = subject.namejp
             if name == '':
                 name = str(subject.id)
+            mylog(name)
             data['name'] = name
             data['time'] = []
             average_scores = ''
