@@ -586,7 +586,6 @@ def review_chart(request, url):
             period = request.GET.get('period')
             check = request.GET.get('check')
             cat = request.GET.get('category')
-            callback = request.GET.get('callback')
             if id is None and rank is None:
                 return JsonResponse({'error': '你还没有指定条目呢'})
             if id is not None and rank is not None:
@@ -595,8 +594,6 @@ def review_chart(request, url):
                 check = 'true'
             if cat is None:
                 cat = 'anime'
-            if callback is None:
-                callback = '?'
         if (check != 'true' and check != 'false') or (cat != 'anime' and cat != 'book' and cat != 'music' and cat != 'game' and cat != 'real'):
             return JsonResponse({'error': '请求错误'})
 
@@ -616,7 +613,7 @@ def review_chart(request, url):
                     if request_type == 1:
                         return JsonResponse({'error': '没有查询到该条目'})
                     else:
-                        response = HttpResponse(callback + "({'error': '该条目暂时还未收录'})")
+                        response = HttpResponse(json.dumps({'error': '该条目暂时还未收录'}))
                         response['Access-Control-Allow-Origin'] = '*'
                         response['Access-Control-Allow-Methods'] = 'GET'
                         return response
