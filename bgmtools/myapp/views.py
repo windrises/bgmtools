@@ -184,9 +184,9 @@ def get_items(cat, uid, pages):
     threads = []
     pages -= 1
     tdnum = min(pages, 6)
-    for p in range(1, tdnum):
-        threads.append(myThread(cat, uid, range(pages * p / tdnum + 1, pages * (p + 1) / tdnum + 1)))
-    threads.append(myThread(cat, uid, range(pages * tdnum / tdnum + 1, pages + 2)))
+    for p in range(0, tdnum):
+        threads.append(myThread(cat, uid, range(pages * p / tdnum + 2, pages * (p + 1) / tdnum + 2)))
+    threads.append(myThread(cat, uid, range(pages * tdnum / tdnum + 2, pages + 2)))
     for x in threads:
         x.start()
     items = []
