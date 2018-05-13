@@ -6,6 +6,15 @@ import scrapy
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+def getCookie():
+    s = '*******************************'
+    cookie = {}
+    s = s.replace(' ', '').split(';')
+    for x in s:
+        x = x.split('=')
+        cookie[x[0]] = x[1]
+    return cookie
+
 class subject(scrapy.spiders.Spider):
     f = open('subject.json', 'a')
     f2 = open('comment.json', 'a')
@@ -13,6 +22,7 @@ class subject(scrapy.spiders.Spider):
     # ff = open('./copy2/subject.json')
     # has = {}
     name = 'subject'
+    cookie = getCookie()
     #allowed_domains = ['https://bgm.tv']
     start_urls = []
     # ii = 1
@@ -31,10 +41,15 @@ class subject(scrapy.spiders.Spider):
     #     ii += 1
     #     id = data['id']
     #     has[id] = 1
-    #for i in range(220025, 229612):
-    for i in range(1, 236597):
-        # if has.has_key(i) == False:
-        start_urls.append('https://mirror.bgm.rin.cat/subject/' + str(i))
+    for i in range(1, 245555):
+    # # for i in range(1, 236597):
+    #     # if has.has_key(i) == False:
+        start_urls.append('https://bgm.tv/subject/' + str(i))
+    #     start_urls.append('https://mirror.bgm.rin.cat/subject/' + str(i))
+    def start_requests(self):
+        for url in self.start_urls:
+            yield scrapy.Request(url=url, cookies=self.cookie)
+
     def parse(self, response):
         id = response.url
         id = id[id.rfind('/') + 1:]
@@ -155,8 +170,9 @@ class subject(scrapy.spiders.Spider):
             self.f2.flush()
 
         suf = ['/wishes', '/collections', '/doings', '/on_hold', '/dropped']
-        for s in suf:
-            yield scrapy.Request(url=response.url + s, meta={'flag': 1}, callback=self.parse2)
+        if sub_cat == 'anime':
+            for s in suf:
+                yield scrapy.Request(url=response.url + s, meta={'flag': 1}, cookies=self.cookie, callback=self.parse2)
 
     def parse2(self, response):
         url = response.url.split('/')
@@ -175,7 +191,7 @@ class subject(scrapy.spiders.Spider):
             time = x.xpath('div/p/text()').extract()[0]
             comment = x.xpath('div/text()').extract()[-1]
             comment = comment.strip('\r\n').strip('\n').replace('\r\n', ' ').replace('\n', ' ').replace('\\', '\\\\').replace('"', '\\"')
-            # print uid,avater,star,uname,time,comments
+            # print uid,avatar,star,uname,time,comments
             cur = collections.OrderedDict()
             cur['user_name'] = user_name
             cur['sid'] = sid
@@ -196,7 +212,7 @@ class subject(scrapy.spiders.Spider):
                 pb = int(pb[pb.find('=') + 1:])
                 page_num = max(pa, pb)
             for i in range(2, page_num + 1):
-                yield scrapy.Request(url=response.url + '?page=' + str(i), meta={'flag': 2}, callback=self.parse2)
+                yield scrapy.Request(url=response.url + '?page=' + str(i), meta={'flag': 2}, cookies=self.cookie, callback=self.parse2)
 
 class user(scrapy.spiders.Spider):
     f = open('user.json', 'a')
@@ -225,7 +241,7 @@ class user(scrapy.spiders.Spider):
     #     has[id] = 1
     start_urls.append('https://mirror.bgm.rin.cat/user/1')
     def parse(self, response):
-        for i in range(1, 399029):
+        for i in range(1, 418036):
             # if self.has.has_key(i) == False:
             yield scrapy.Request(url='https://mirror.bgm.rin.cat/user/' + str(i), meta={'id': i}, callback=self.parse2)
 
@@ -233,8 +249,8 @@ class user(scrapy.spiders.Spider):
         id = response.meta['id']
         user_name = response.url
         user_name = user_name[user_name.rfind('/') + 1:]
-        avater = response.xpath('//*[@id="headerProfile"]/div/div[1]/h1/div[2]/a/span/@style').extract()
-        if len(avater) == 0:
+        avatar = response.xpath('//*[@id="headerProfile"]/div/div[1]/h1/div[2]/a/span/@style').extract()
+        if len(avatar) == 0:
             self.error.write(user_name + '\n')
             self.error.flush()
             return
@@ -244,8 +260,10 @@ class user(scrapy.spiders.Spider):
         else:
             nick_name = ''
             self.nick_error.write(str(id) + '\n')
-        avater = avater[0]
-        avater = avater[avater.find('(') + 2: avater.find('?')]
+        avatar = avatar[0]
+        avatar = avatar[avatar.find('(') + 2: avatar.find('?')]
+        if avatar[-1] == '\'':
+            avatar = avatar[:-1]
         signup_time = response.xpath('//*[@id="user_home"]/div[1]/ul/li[1]/span[2]/text()').extract()[0]
         signup_time = signup_time[: signup_time.find(' ')]
         ban = response.xpath('//*[@id="main"]/div/div[2]/h3').extract()
@@ -256,7 +274,7 @@ class user(scrapy.spiders.Spider):
         cur['nick_name'] = nick_name.strip('\r\n').strip('\n').replace('\r\n', ' ').replace('\n', ' ').replace('\\', '\\\\').replace('"', '\\"')
         cur['signup_time'] = signup_time
         cur['ban'] = ban
-        cur['avater'] = avater
+        cur['avatar'] = avatar
         ss = json.dumps(cur)
         self.f.write(str(str(ss).decode('unicode_escape')) + '\n')
         if id % 1000 == 0:

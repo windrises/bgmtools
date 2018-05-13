@@ -11,6 +11,7 @@ import datetime
 import calendar
 import json
 from bs4 import BeautifulSoup
+import django.utils.timezone as timezone
 from myapp.models import Tag
 from myapp.models import Subject
 from myapp.models import User
@@ -18,6 +19,12 @@ from myapp.models import Comment
 from myapp.models import AverageScore
 from myapp.models import AllAverageScore
 from myapp.models import Cache
+from myapp.models import RcmdIndex
+from myapp.models import RcmdedList
+from myapp.models import RcmdItem
+from myapp.models import RcmdSub
+from myapp.models import RcmdUser
+from myapp.models import Settings
 import sys
 import threading
 reload(sys)
@@ -30,6 +37,12 @@ def mylog(s):
     print s
     f.write(s + '\n')
     f.flush()
+
+def access_control(data):
+    response = HttpResponse(json.dumps(data))
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Methods'] = 'GET'
+    return response
 
 def home(request):
     string = '么么哒'
@@ -200,7 +213,7 @@ def run(a, b, f, cat):
     ss = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     mylog(ss)
     global timeout
-    nicka = ''; nickb = ''; avatera = ''; avaterb = ''
+    nicka = ''; nickb = ''; avatara = ''; avatarb = ''
     itemsa = []; itemsb = []
     id = []; img = []; namechs = []; namejp = []; tip = []
     stara = []; starb = []; tagsa = []; tagsb = []
@@ -221,8 +234,8 @@ def run(a, b, f, cat):
     nicka = nicka.find('div', class_='inner').a.get_text()
     ta = soupa.find('h1', class_='nameSingle').find('small', class_='grey').get_text()
     a = ta[1:]
-    avatera = str(soupa.find('span', class_='avatarNeue avatarSize75'))
-    avatera = avatera[avatera.find('/') + 2: avatera.find(')') - 1]
+    avatara = str(soupa.find('span', class_='avatarNeue avatarSize75'))
+    avatara = avatara[avatara.find('/') + 2: avatara.find(')') - 1]
     pagesa = soupa.find_all('a', class_='p')
     if len(pagesa) == 0:
         pagesa = 1
@@ -245,8 +258,8 @@ def run(a, b, f, cat):
     nickb = nickb.find('div', class_='inner').a.get_text()
     tb = soupb.find('h1', class_='nameSingle').find('small', class_='grey').get_text()
     b = tb[1:]
-    avaterb = str(soupb.find('span', class_='avatarNeue avatarSize75'))
-    avaterb = avaterb[avaterb.find('/') + 2: avaterb.find(')') - 1]
+    avatarb = str(soupb.find('span', class_='avatarNeue avatarSize75'))
+    avatarb = avatarb[avatarb.find('/') + 2: avatarb.find(')') - 1]
     pagesb = soupb.find_all('a', class_='p')
     if len(pagesb) == 0:
         pagesb = 1
@@ -363,7 +376,7 @@ def run(a, b, f, cat):
             stara1[2].append(stara[i]); starb1[2].append(starb[i]); tagsa1[2].append(tagsa[i]); tagsb1[2].append(tagsb[i])
             datea1[2].append(datea[i]); dateb1[2].append(dateb[i]); txta1[2].append(txta[i]); txtb1[2].append(txtb[i]); tip1[2].append(tip[i])
 
-    dic = {'a': a, 'b': b, 'nicka': nicka, 'nickb': nickb, 'avatera': avatera, 'avaterb': avaterb, 'rand': rand, 'cat': cat, 'timeout': timeout,
+    dic = {'a': a, 'b': b, 'nicka': nicka, 'nickb': nickb, 'avatara': avatara, 'avatarb': avatarb, 'rand': rand, 'cat': cat, 'timeout': timeout,
         'info0': zip(id1[0], img1[0], namechs1[0], namejp1[0], stara1[0], starb1[0], tagsa1[0], tagsb1[0], datea1[0], dateb1[0], txta1[0], txtb1[0], tip1[0]),
         'info1': zip(id1[1], img1[1], namechs1[1], namejp1[1], stara1[1], starb1[1], tagsa1[1], tagsb1[1], datea1[1], dateb1[1], txta1[1], txtb1[1], tip1[1]),
         'info2': zip(id1[2], img1[2], namechs1[2], namejp1[2], stara1[2], starb1[2], tagsa1[2], tagsb1[2], datea1[2], dateb1[2], txta1[2], txtb1[2], tip1[2])}
@@ -564,7 +577,6 @@ def review_chart(request, url):
     if request.method == 'POST' or url == 'api':
         id = ''; rank = ''
         period  = ''; check = ''; cat = ''
-        callback = ''
         request_type = 1
         interval = 7
         if request.method == 'POST':
@@ -613,10 +625,7 @@ def review_chart(request, url):
                     if request_type == 1:
                         return JsonResponse({'error': '没有查询到该条目'})
                     else:
-                        response = HttpResponse(json.dumps({'error': '该条目暂时还未收录'}))
-                        response['Access-Control-Allow-Origin'] = '*'
-                        response['Access-Control-Allow-Methods'] = 'GET'
-                        return response
+                        return access_control({'error': '该条目暂时还未收录'})
                 if x not in distinct:
                     distinct[x] = 1
                     subjects.append(subject[0])
@@ -785,10 +794,7 @@ def review_chart(request, url):
         if request_type == 1:
             return JsonResponse({'data': data, 'type': type})
         else:
-            response = HttpResponse(json.dumps(data))
-            response['Access-Control-Allow-Origin'] = '*'
-            response['Access-Control-Allow-Methods'] = 'GET'
-            return response
+            return access_control(data)
     return render(request, 'review_chart.html')
 
 @cache_page(60 * 15)
@@ -883,3 +889,236 @@ def review_list(request, url):
 
         return JsonResponse({'data': data, 'page': page, 'maxpage': maxpage})
     return render(request, 'review_list.html', {'cat_focus': json.dumps(url)})
+
+def get_rcmd_index(user):
+    rcmd_all = user.rcmd_index.all().filter(marked=0)
+    rcmd = random.sample(rcmd_all, min(1, len(rcmd_all)))
+    return rcmd
+
+def get_rcmd_item(user, num):
+    comments = user.comment_set.all().filter(subject__sub_cat='anime', star__gte=8)
+    comments = random.sample(comments, num)
+    rcmd = []
+    for x in comments:
+        rcmd_all = x.subject.rcmd_item.all()
+        rcmd_all = rcmd_all[:len(rcmd_all) / 2]
+        cnt = min(3, len(rcmd_all))
+        rcmd += zip([x.subject.id] * cnt, random.sample(rcmd_all, cnt))
+    random.shuffle(rcmd)
+    return rcmd
+
+def check_settings(sub, settings):
+    if settings.score_below != 0 and float(sub.star) < settings.score_below:
+        if random.random() < 0.8:
+            return 0
+    if settings.score_above != 0 and float(sub.star) > settings.score_above:
+        if random.random() < 0.8:
+            return 0
+    if settings.rank_below != 0 and sub.rank < settings.rank_below:
+        if random.random() < 0.8:
+            return 0
+    if settings.rank_above != 0 and sub.rank > settings.rank_above:
+        if random.random() < 0.8:
+            return 0
+    if settings.rating_below != 0 and sub.votes < settings.rating_below:
+        if random.random() < 0.8:
+            return 0
+    if settings.rating_above != 0 and sub.votes > settings.rating_above:
+        if random.random() < 0.8:
+            return 0
+    if settings.filter_tag != '':
+        for x in settings.filter_tag.split(' '):
+            for y in sub.tag.all():
+                if x == y.name:
+                    return 0
+    return 1
+
+def recommend(request, url):
+    ss = str(request) + '  ...............  ' + url
+    mylog(ss)
+    url = url.replace('/', '')
+    if request.method == 'POST' or request.method == 'GET':
+        if request.method == 'POST':
+            ss = '...............  ' + str(request.POST)
+            mylog(ss)
+            type = request.POST['type']
+            if type == 'settings_submit':
+                score_below = ''; score_above = ''
+                rank_below = ''; rank_above = ''
+                rating_below = ''; rating_above = ''
+                try:
+                    score_below = float(request.POST['score_below'])
+                    score_above = float(request.POST['score_above'])
+                    rank_below = int(request.POST['rank_below'])
+                    rank_above = int(request.POST['rank_above'])
+                    rating_below = int(request.POST['rating_below'])
+                    rating_above = int(request.POST['rating_above'])
+                except:
+                    return access_control({'status': 'value error'})
+                filter_tag = request.POST['filter_tag']
+                user_name = request.POST['user_name']
+                user = ''
+                try:
+                    user = User.objects.get(user_name=user_name)
+                except:
+                    return access_control({'status': 'not found'})
+                settings = Settings.objects.get(user=user)
+                settings.score_below = score_below
+                settings.score_above = score_above
+                settings.rank_below = rank_below
+                settings.rank_above = rank_above
+                settings.rating_below = rating_below
+                settings.rating_above = rating_above
+                settings.filter_tag = filter_tag
+                settings.save()
+                return access_control({'status': '已保存'})
+            elif type == 'settings_update':
+                return access_control({'status': '暂未实现'})
+            else:
+                return access_control({'status': 'error'})
+        else:
+            ss = '...............  ' + str(request.GET)
+            mylog(ss)
+            data = {}
+            type = request.GET.get('type')
+            if type == 'subject':
+                id = 0
+                subject = ''
+                try:
+                    id = int(request.GET.get('id'))
+                    subject = Subject.objects.get(id=id)
+                except:
+                    return access_control({'error': 'not found'})
+                ss = subject.name
+                mylog(ss)
+                data = {'item': [], 'sub': []}
+                for x in subject.rcmd_item.all().order_by('-weight'):
+                    data['item'].append({'id': x.rcmd.id, 'img': x.rcmd.img,
+                                         'name': x.rcmd.name, 'namechs': x.rcmd.namechs})
+                for x in subject.rcmd_sub.all().order_by('-similarity'):
+                    data['sub'].append({'id': x.rcmd.id, 'img': x.rcmd.img,
+                                         'name': x.rcmd.name, 'namechs': x.rcmd.namechs})
+            elif type == 'index':
+                user_name = request.GET.get('user_name')
+                user = ''
+                try:
+                    user = User.objects.get(user_name=user_name)
+                except:
+                    return access_control({'error': 'not found'})
+                data = {'index': []}
+                date = timezone.now
+                rcmd_index = []
+                rcmd_item = []
+                if len(user.rcmd_list.all().filter(user=user, date=date)) > 0:
+                    rcmd_index = user.rcmd_list.all().filter(user=user, date=date, type=0)
+                    rcmd_item = user.rcmd_list.all().filter(user=user, date=date).exclude(type=0)
+                else:
+                    settings = Settings.objects.filter(user=user)
+                    if len(settings) == 0:
+                        settings = Settings.objects.create(user=user)
+                    else:
+                        settings = settings[0]
+                    for i in range(8):
+                        rcmd = get_rcmd_index(user)
+                        if len(rcmd) == 0:
+                            break
+                        rcmd = rcmd[0]
+                        if check_settings(rcmd.rcmd, settings) == 0:
+                            rcmd = get_rcmd_index(user)[0]
+                        flag = 1
+                        for x in rcmd_index:
+                            if x == rcmd:
+                                flag = 0
+                                break
+                        if flag == 0:
+                            continue
+                        rcmd_index.append(rcmd)
+                        marked = 0
+                        if len(rcmd_index) <= 2:
+                            rcmd.marked = 1
+                            rcmd.save()
+                            marked = 1
+                        RcmdedList.objects.create(
+                            user=user,
+                            rcmd=rcmd.rcmd,
+                            type=0,
+                            marked=marked
+                        )
+                    rcmd_item_all = get_rcmd_item(user, 20)
+                    for x in rcmd_item_all:
+                        if len(rcmd_item) + len(rcmd_index) == 12:
+                            break
+                        if len(user.comment_set.all().filter(subject=x[1].rcmd)) == 0 \
+                                and check_settings(x[1].rcmd, settings) == 1:
+                            rcmd_item.append(x[1])
+                            RcmdedList.objects.create(
+                                user=user,
+                                rcmd=x[1].rcmd,
+                                type=x[0],
+                                marked=0
+                            )
+                rcmd_page = (len(rcmd_index) + len(rcmd_item) + 2) / 3
+                for i in range(rcmd_page):
+                    left = len(rcmd_index) * i / rcmd_page
+                    right = len(rcmd_index) * (i + 1) / rcmd_page
+                    for x in rcmd_index[left:right]:
+                        data['index'].append({'id': x.rcmd.id, 'img': x.rcmd.img,
+                                             'name': x.rcmd.name, 'namechs': x.rcmd.namechs})
+                    left = len(rcmd_item) * i / rcmd_page
+                    right = len(rcmd_item) * (i + 1) / rcmd_page
+                    for x in rcmd_item[left:right]:
+                        data['index'].append({'id': x.rcmd.id, 'img': x.rcmd.img,
+                                              'name': x.rcmd.name, 'namechs': x.rcmd.namechs})
+            elif type == 'user':
+                user_name = request.GET.get('user_name')
+                user = ''
+                try:
+                    user = User.objects.get(user_name=user_name)
+                except:
+                    return access_control({'error': 'not found'})
+                data = {'user': []}
+                for x in user.rcmd_user.all().order_by('-similarity'):
+                    avatar = x.rcmd.avatar.replace('user/l', 'user/m')
+                    if avatar[-1] == '\'':
+                        avatar = avatar[:-1]
+                    data['user'].append({'user_name': x.rcmd.user_name, 'avatar': avatar,
+                                        'nick_name': x.rcmd.nick_name})
+            elif type == 'recommended':
+                user_name = request.GET.get('user_name')
+                user = ''
+                try:
+                    user = User.objects.get(user_name=user_name)
+                except:
+                    return access_control({'error': 'not found'})
+                data = {'recommended': []}
+                for x in user.rcmd_list.filter(marked=1).order_by('-date'):
+                    name = ''
+                    if x.type != 0:
+                        name = Subject.objects.get(id=x.type).name
+                    data['recommended'].append({'id': x.rcmd.id, 'name': x.rcmd.name,
+                                        'namechs': x.rcmd.namechs, 'date': str(x.date),
+                                        'type': {'id': x.type, 'name': name}})
+            elif type == 'settings':
+                user_name = request.GET.get('user_name')
+                user = ''
+                try:
+                    user = User.objects.get(user_name=user_name)
+                except:
+                    return access_control({'error': 'not found'})
+                settings = Settings.objects.filter(user=user)
+                if len(settings) == 0:
+                    settings = Settings.objects.create(user=user)
+                else:
+                    settings = settings[0]
+                data['score_below'] = settings.score_below
+                data['score_above'] = settings.score_above
+                data['rank_below'] = settings.rank_below
+                data['rank_above'] = settings.rank_above
+                data['rating_below'] = settings.rating_below
+                data['rating_above'] = settings.rating_above
+                data['filter_tag'] = settings.filter_tag
+            else:
+                return access_control({'error': 'type error'})
+            return access_control(data)
+
+    return HttpResponse('hello')

@@ -17,16 +17,16 @@ from myapp.models import AverageScore
 from myapp.models import AllAverageScore
 
 error = open('calculate_error.txt', 'a')
-subjects = Subject.objects.filter(sub_cat='real')
+subjects = Subject.objects.filter(sub_cat='anime')
 average_score_dic = {}
 dt1 = datetime.datetime(1900, 1, 1)
-now_dt = datetime.datetime(2018, 1, 15)
+now_dt = datetime.datetime(2018, 5, 7)
 now_timeid = (now_dt - dt1).days
 repeat = {}
 log_cnt = 0
 
 def change_timeid(timeid):
-    timeid = (timeid + 20) / 21 * 21
+    timeid = (timeid + 6) / 7 * 7
     return timeid
 
 for subject in subjects:
@@ -59,7 +59,7 @@ for subject in subjects:
             if last_timeid not in average_score_dic:
                 average_score_dic[last_timeid] = []
             average_score_dic[last_timeid].append([subject, timestr, score, tot, cnt])
-            last_timeid += 21
+            last_timeid += 7
         last_timeid = cur_timeid
         if i != comments_len:
             sum += comment.star

@@ -71,8 +71,6 @@ def main():
         if i % 100 == 0:
             print i
         i += 1
-        if i < 0:
-            continue
         data = ''
         try:
             data = json.loads(line)
@@ -311,8 +309,8 @@ def main():
             t = Tag.objects.get(name=x, sub_cat=sub_cat)
             t.cnt += 1
             subject.tag.add(t)
-            subject.save()
             t.save()
+        subject.save()
 
     f.close()
 

@@ -25,5 +25,6 @@ urlpatterns = [
     url(r'^bgmtools/review/chart($|/.*)', myapp_views.review_chart, name='review_chart'),
     url(r'^bgmtools/review/list($|/.*)', myapp_views.review_list, name='review_list'),
     url(r'^bgmtools/review($|/.*)', myapp_views.review_chart, name='review'),
+    url(r'^bgmtools/recommend($|/.*)', myapp_views.recommend, name='recommend'),
     url(r'^admin/', include(admin.site.urls)),
 ]

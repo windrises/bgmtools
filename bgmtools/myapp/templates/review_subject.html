@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" name="viewport">
+<title>bgmtools</title>
+
+<link rel="shortcut icon" href="https://bgm.tv/img/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon-precomposed" href="https://bgm.tv/img/ico/ico_ios.png">
+
+<link rel="stylesheet" type="text/css" href="/static/style.css">
+
+</head>
+<body class="bangumi">
+<div id="wrapperNeue" class="wrapperNeue">
+<div id="headerNeue2">
+<div class="headerNeueInner clearit">
+<div id="bgmusume" class="bg musume_1" style="background-position: 0 0;"></div>
+<a href="https://bgm.tv/" class="logo">Bangumi 番组计划</a>
+<input type="checkbox" id="navMenuNeueToggle">
+<label for="navMenuNeueToggle" class="menuCompact"></label>
+<div id="navNeue2">
+<div id="menuNeue">
+<ul id="navMenuNeue" class="clearit">
+<li><a name="all" href="/bgmtools/review/subject/all" class="top chl"><span>全部</span></a></li>
+<li><a name="anime" href="/bgmtools/review/subject/anime" class="top chl"><span>动画</span></a></li>
+<li><a name="book" href="/bgmtools/review/subject/book" class="top chl"><span>书籍</span></a></li>
+<li><a name="music" href="/bgmtools/review/subject/music" class="top chl"><span>音乐</span></a></li>
+<li><a name="game" href="/bgmtools/review/subject/game" class="top chl"><span>游戏</span></a></li>
+<li><a name="real" href="/bgmtools/review/subject/real" class="top chl"><span>三次元</span></a></li>
+<li><a href="/bgmtools/contrast" class="top"><span>对比</span></a></li>
+<li><a href="/bgmtools/multitag" class="top"><span>多标签</span></a></li>
+<li><a href="/bgmtools/review" class="top focus"><span>时光机</span></a>
+<div class="clear"></div><ul class="clearit">
+<li><a href="/bgmtools/review/chart" class="nav">评分走势图</a></li>
+<li><a href="/bgmtools/review/list" class="nav">历史排行榜</a></li>
+<li><a href="/bgmtools/review/subject" class="nav">条目统计图</a></li>
+<li><a href="/bgmtools/review/user" class="nav">用户统计图</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="main" class="png_bg">
+<div id="header">
+<h1>Bangumi 时光机</h1>
+</div>
+
+<div class="columns clearit">
+{#<div id="columnSubjectBrowseA" class="column">#}
+<div id="score_chart" style="width:800px;height:420px"></div>
+<div id="multi-score_chart" style="width:800px;height:420px"></div>
+<div id="multi-rank_chart" style="width:800px;height:420px"></div>
+<div id="multi-people_chart" style="width:800px;height:420px"></div>
+{#</div>#}
+
+</div>
+
+<div id="footer">
+<ul id="footerLinks" class="clearit">
+<li class="first">
+<dl>
+<dd><a href="https://greasyfork.org/zh-CN/scripts/38343-bangumi%E6%97%B6%E5%85%89%E6%9C%BA" target="_blank">戳我</a>安装油猴脚本，
+    <a href="https://bgm.tv/group/topic/" target="_blank">戳我</a>反馈bug和意见</dd>
+</dl>
+</li>
+</ul>
+</div>
+</div></div>
+
+<script type="text/javascript" src="/static/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="/static/review_subject-script.js"></script>
+<script type="text/javascript" src="/static/highcharts.js"></script>
+<script type="text/javascript" src="/static/exporting.js"></script>
+<script type="text/javascript" src="/static/highcharts-zh_CN.js"></script>
+<script type="text/javascript">var cat={{ cat_focus|safe }};$("#navMenuNeue").find("[name='" + cat + "']").addClass("focus");</script>
+
+</body></html>

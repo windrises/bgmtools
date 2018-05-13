@@ -63,7 +63,7 @@ def main():
             timeid=timeid,
             content=data['comment']
         ))
-        if i % 10000 == 0:
+        if i % 20000 == 0:
             print i
             Comment.objects.bulk_create(all)
             all = []
