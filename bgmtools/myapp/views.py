@@ -1049,13 +1049,17 @@ def recommend(request, url):
                         if len(rcmd_item) + len(rcmd_index) == 12:
                             break
                         if len(user.comment_set.all().filter(subject=x[1].rcmd)) == 0 \
-                                and check_settings(x[1].rcmd, settings) == 1:
+                                and check_settings(x[1].rcmd, settings) == 1 \
+                                and len(user.rcmd_list.filter(rcmd=x[1].rcmd, marked=1)) == 0:
                             rcmd_item.append(x[1])
+                            marked = 0
+                            if len(rcmd_item) == 1:
+                                marked = 1
                             RcmdedList.objects.create(
                                 user=user,
                                 rcmd=x[1].rcmd,
                                 type=x[0],
-                                marked=0
+                                marked=marked
                             )
                 rcmd_page = (len(rcmd_index) + len(rcmd_item) + 2) / 3
                 for i in range(rcmd_page):
