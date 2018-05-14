@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         漫海拾贝
 // @namespace    https://windrises.net
-// @version      0.1
-// @description  在Bangumi条目页查看相似条目，在首页查看个性化推荐条目，在个人设置页面修改设置
+// @version      0.6
+// @description  在Bangumi条目页查看相似条目，在首页查看个性化推荐条目，在个人设置页面修改设置，另外还可以查看历史推荐和好友推荐
 // @author       windrises
 // @run-at       document-end
+// @grant        GM_xmlhttpRequest
+// @connect      bangumi.brightsphere.xyz
 // @require      http://code.jquery.com/jquery-1.8.3.min.js
 // @include      /^(https?://bgm\.tv|http://(bgm\.tv|bangumi\.tv|chii\.in))/($|subject|user|settings|anime/list)/
 // ==/UserScript==
@@ -109,44 +111,38 @@ function subject(id) {
         $("#columnSubjectHomeB").find("[class='subject_section']").eq(0).after(html);
         var item_cnt = 0;
     	var sub_cnt = 0;
-    	var left = new Array(0, 8, 24);
     	var right = new Array(8, 24, 48);
         $("#moreItemBtn").on("click", function() {
 			var html = '';
-			for (var i = left[item_cnt]; i < Math.min(right[item_cnt], ret.item.length); i ++) {
+			for (var i = 0; i < Math.min(right[item_cnt], ret.item.length); i ++) {
 	        	var x = ret.item[i];
-	        	var namechs = x.namechs;
-	        	if (namechs == "") namechs = x.name;
 	        	html += '<li class="clearit">' +
-				    '<a href="/subject/' + x.id + '" class="avatar thumbTip" data-original-title="' + namechs + '">' +
+				    '<a href="/subject/' + x.id + '" class="avatar thumbTip">' +
 				    '<span class="avatarNeue avatarSize75" style="background-image:url(' + x.img + ')"></span>' +
 				    '</a>' +
-				    '<p class="info"><a href="/subject/"' + x.id + ' class="l">' + x.name +'</a></p>' +
+				    '<p class="info"><a href="/subject/' + x.id + '" class="l">' + x.name +'</a></p>' +
 				    '</li>';
 			}
-	        $("#columnSubjectHomeB").find("[class='subject_section']").eq(1).find("[class=coversSmall]").append(html);
-	        item_cnt ++;
-			if (item_cnt == 3) $("#moreItemBtn").css("display", "none");
+	        $("#columnSubjectHomeB").find("[class='subject_section']").eq(1).find("[class=coversSmall]").html(html);
+	        item_cnt = (item_cnt + 1) % 3;
 	    });
 	    $("#moreSubBtn").on("click", function() {
 	        var html = '';
-			for (var i = left[sub_cnt]; i < Math.min(right[sub_cnt], ret.sub.length); i ++) {
+			for (var i = 0; i < Math.min(right[sub_cnt], ret.sub.length); i ++) {
 	        	var x = ret.sub[i];
-	        	var namechs = x.namechs;
-	        	if (namechs == "") namechs = x.name;
 	        	html += '<li class="clearit">' +
-				    '<a href="/subject/' + x.id + '" class="avatar thumbTip" data-original-title="' + namechs + '">' +
+				    '<a href="/subject/' + x.id + '" class="avatar thumbTip">' +
 				    '<span class="avatarNeue avatarSize75" style="background-image:url(' + x.img + ')"></span>' +
 				    '</a>' +
-				    '<p class="info"><a href="/subject/"' + x.id + ' class="l">' + x.name +'</a></p>' +
+				    '<p class="info"><a href="/subject/' + x.id + '" class="l">' + x.name +'</a></p>' +
 				    '</li>';
 			}
-	        $("#columnSubjectHomeB").find("[class='subject_section']").eq(2).find("[class=coversSmall]").append(html);
-	        sub_cnt ++;
-			if (sub_cnt == 3) $("#moreSubBtn").css("display", "none");
+	        $("#columnSubjectHomeB").find("[class='subject_section']").eq(2).find("[class=coversSmall]").html(html);
+	        sub_cnt = (sub_cnt + 1) % 3;
 	    });
 	    $("#moreItemBtn").trigger("click");
         $("#moreSubBtn").trigger("click");
+        Bangumi_Plus(id);
     });
 }
 
@@ -294,4 +290,57 @@ function settings(user_name) {
 	        });
 	    });
     });
+}
+
+// from http://bgm.tv/group/topic/345713
+function Bangumi_Plus(id) {
+    'use strict';
+
+    GM_request(`https://bangumi.brightsphere.xyz/api/subjects/${id}/`).then(JSON.parse).then(data => {
+        let subjects = '';
+        for (let i in data.recommendations) {
+            let rmd = data.recommendations[i];
+            let subtitle = '';
+            if (rmd.auto) {
+                continue;
+            } else {
+                subtitle = `${rmd.count}人推荐`;
+            }
+            let subject = rmd.subject;
+            subjects += `<li>
+						<span class="sub">${subtitle}</span>
+						<a href="https://bangumi.brightsphere.xyz/recommendation/${rmd.key}" title="查看详情" class="avatar thumbTip"><span class="avatarNeue avatarSize75" style="background-image:url('${subject.cover.replace('http:','')}')"></span></a>
+						<a href="/subject/${subject.id}" class="title">${subject.main_name}</a>
+						</li>`;
+        }
+        let block = `<div class="subject_section">
+					<div class="clearit">
+					<div class="rr"><a href="https://bangumi.brightsphere.xyz/subject/${id}" class="chiiBtn"><span>关联推荐</span></a></div>
+					<h2 class="subtitle">相关推荐</h2>
+					</div>
+					<div class="content_inner">
+					<ul class="browserCoverMedium clearit">${subjects}</ul>
+					</div>
+					</div>`;
+        $("#columnSubjectHomeB").find("[class='subject_section']").eq(2).after(block);
+    });
+    function GM_request(url, responseType, method) {
+	    return new Promise(function(resolve, reject) {
+	        GM_xmlhttpRequest({
+	            method: method || 'GET',
+	            url,
+	            responseType,
+	            onload: xhr => {
+	                if (xhr.status >= 200 && xhr.status < 300) {
+	                    resolve(xhr.response);
+	                } else {
+	                    reject(xhr);
+	                }
+	            },
+	            onerror: xhr => {
+	                reject(xhr);
+	            }
+	        });
+	    });
+	}
 }
