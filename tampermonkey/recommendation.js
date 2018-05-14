@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         漫海拾贝
 // @namespace    https://windrises.net
-// @version      0.6
+// @version      0.7
 // @description  在Bangumi条目页查看相似条目，在首页查看个性化推荐条目，在个人设置页面修改设置，另外还可以查看历史推荐和好友推荐
 // @author       windrises
 // @run-at       document-end
@@ -86,7 +86,10 @@ function index(user_name) {
 
 function subject(id) {
     $.getJSON("https://windrises.net/bgmtools/recommend/api?type=subject&id=" + id, function(ret){
-        if (ret.error) return;
+        if (ret.error) {
+        	Bangumi_Plus(id);
+        	return;
+        }
         var html = '';
         if (ret.item.length > 0) {
         	html += '<div class="subject_section">' +
@@ -322,7 +325,7 @@ function Bangumi_Plus(id) {
 					<ul class="browserCoverMedium clearit">${subjects}</ul>
 					</div>
 					</div>`;
-        $("#columnSubjectHomeB").find("[class='subject_section']").eq(2).after(block);
+        $(".subject_section > .subtitle:contains('评论')").parent().before(block);
     });
     function GM_request(url, responseType, method) {
 	    return new Promise(function(resolve, reject) {
