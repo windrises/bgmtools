@@ -994,10 +994,10 @@ def recommend(request, url):
                 data = {'item': [], 'sub': []}
                 for x in subject.rcmd_item.all().order_by('-weight'):
                     data['item'].append({'id': x.rcmd.id, 'img': x.rcmd.img,
-                                         'name': x.rcmd.name, 'namechs': x.rcmd.namechs})
+                                         'name': x.rcmd.name})
                 for x in subject.rcmd_sub.all().order_by('-similarity'):
                     data['sub'].append({'id': x.rcmd.id, 'img': x.rcmd.img,
-                                         'name': x.rcmd.name, 'namechs': x.rcmd.namechs})
+                                         'name': x.rcmd.name})
             elif type == 'index':
                 user_name = request.GET.get('user_name')
                 user = ''
@@ -1010,8 +1010,8 @@ def recommend(request, url):
                 rcmd_index = []
                 rcmd_item = []
                 if len(user.rcmd_list.all().filter(user=user, date=date)) > 0:
-                    rcmd_index = user.rcmd_list.all().filter(user=user, date=date, type=0)
-                    rcmd_item = user.rcmd_list.all().filter(user=user, date=date).exclude(type=0)
+                    rcmd_index = user.rcmd_list.all().filter(user=user, date=date, type=0).order_by('pos')
+                    rcmd_item = user.rcmd_list.all().filter(user=user, date=date).exclude(type=0).order_by('pos')
                 else:
                     settings = Settings.objects.filter(user=user)
                     if len(settings) == 0:
@@ -1042,7 +1042,8 @@ def recommend(request, url):
                             user=user,
                             rcmd=rcmd.rcmd,
                             type=0,
-                            marked=marked
+                            marked=marked,
+                            pos=len(rcmd_index)
                         )
                     rcmd_item_all = get_rcmd_item(user, 20)
                     for x in rcmd_item_all:
@@ -1059,7 +1060,8 @@ def recommend(request, url):
                                 user=user,
                                 rcmd=x[1].rcmd,
                                 type=x[0],
-                                marked=marked
+                                marked=marked,
+                                pos=len(rcmd_item)
                             )
                 rcmd_page = (len(rcmd_index) + len(rcmd_item) + 2) / 3
                 for i in range(rcmd_page):

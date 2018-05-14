@@ -85,6 +85,7 @@ class RcmdedList(models.Model):
     date = models.DateField(default=timezone.now)
     type = models.IntegerField(default=0)
     marked = models.IntegerField(default=0)
+    pos = models.IntegerField(default=0)
     class Meta:
         unique_together = ('user', 'rcmd', 'date')
 
