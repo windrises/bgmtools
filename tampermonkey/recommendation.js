@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         漫海拾贝
 // @namespace    https://windrises.net
-// @version      0.7
+// @version      0.8
 // @description  在Bangumi条目页查看相似条目，在首页查看个性化推荐条目，在个人设置页面修改设置，另外还可以查看历史推荐和好友推荐
 // @author       windrises
 // @run-at       document-end
@@ -15,16 +15,20 @@
     var url = location.pathname;
     url = url.split("/");
     var user_name = $("#headerNeue2").find("[class='avatar']");
+    var user_id = "";
     if (user_name.length == 0) user_name = "";
     else {
+    	user_id = user_name.children().css("background-image");
+    	user_id = user_id.substring(user_id.lastIndexOf("/") + 1, user_id.lastIndexOf(".jpg"));
     	user_name = user_name.attr("href");
     	user_name = user_name.substr(user_name.indexOf("user/") + 5);
+        if (user_id == "icon") user_id = user_name;
     }
-    if (url.length == 2 && url[1] == "" && user_name != "") index(user_name);
+    if (url.length == 2 && url[1] == "" && user_name != "") index(user_name, user_id);
     else if (url.length == 3 && url[1] == "subject") subject(url[2]);
-    else if (url.length == 4 && url[3] == "friends" && user_name == url[2]) user(user_name);
-    else if (url.length == 5 && url[1] + url[2] == "animelist" && user_name == url[3]) recommended(user_name);
-    else if (url.length >= 2 && url[1] == "settings" && user_name != "") settings(user_name);
+    else if (url.length == 4 && url[3] == "friends" && user_name == url[2]) user(user_name, user_id);
+    else if (url.length == 5 && url[1] + url[2] == "animelist" && user_name == url[3]) recommended(user_name, user_id);
+    else if (url.length >= 2 && url[1] == "settings" && user_name != "") settings(user_name, user_id);
 })();
 
 function index_show(ret, index_cnt) {
@@ -51,7 +55,7 @@ function index_show(ret, index_cnt) {
 	});
 }
 
-function index(user_name) {
+function index(user_name, user_id) {
     $("#prgCatrgoryFilter > li > a").click(function() {
         $("#featuredItems").hide();
         $("#prgManagerMain").show();
@@ -76,7 +80,7 @@ function index(user_name) {
 	        	index_show(rcmd, index_cnt);
 	        }
 	    } else {
-	    	$.getJSON("https://windrises.net/bgmtools/recommend/api?type=index&user_name=" + user_name, function(ret){
+	    	$.getJSON("https://windrises.net/bgmtools/recommend/api?type=index&user_name=" + user_name + "&user_id=" + user_id, function(ret){
 	    		rcmd = ret;
 	    		index_show(ret, 0);
 	    	});
@@ -149,12 +153,12 @@ function subject(id) {
     });
 }
 
-function user(user_name) {
+function user(user_name, user_id) {
     $("#headerProfile").find("[class='focus']").parent().after('<li><a id="rcmdUserBtn" href="javascript:void(0);">好友推荐</a></li>');
     $("#rcmdUserBtn").on("click", function() {
 	    $("#headerProfile").find("[class='focus']").removeClass("focus");
 	    $("#rcmdUserBtn").addClass("focus");
-	    $.getJSON("https://windrises.net/bgmtools/recommend/api?type=user&user_name=" + user_name, function(ret){
+	    $.getJSON("https://windrises.net/bgmtools/recommend/api?type=user&user_name=" + user_name + "&user_id=" + user_id, function(ret){
 	        if (ret.error) return;
 	        var html = '';
 			for (var i in ret.user) {
@@ -173,13 +177,13 @@ function user(user_name) {
 	});
 }
 
-function recommended(user_name) {
+function recommended(user_name, user_id) {
 	$("#headerProfile").find("[class=navSubTabs]").append('<li><a id="recommendedBtn" href="javascript:void(0);"><span>历史推荐</span></a></li>');
 	$("#recommendedBtn").on("click", function() {
 		$("#headerProfile").find("[class='focus']").removeClass("focus");
         $("#recommendedBtn").addClass("focus");
         $("#browserTools").hide();
-        $.getJSON("https://windrises.net/bgmtools/recommend/?type=recommended&user_name=" + user_name, function(ret){
+        $.getJSON("https://windrises.net/bgmtools/recommend/?type=recommended&user_name=" + user_name + "&user_id=" + user_id, function(ret){
 	    	if (ret.error) return;
 	    	var html = "";
 	    	for (var i in ret.recommended) {
@@ -205,12 +209,12 @@ function recommended(user_name) {
 	});
 }
 
-function settings(user_name) {
+function settings(user_name, user_id) {
     $("#header > ul").append('<li><a id="rcmdSetBtn" href="javascript:void(0);"><span>漫海拾贝</span></a></li>');
     $("#rcmdSetBtn").on("click", function() {
         $("#header").find("[class='selected']").removeClass("selected");
         $("#rcmdSetBtn").addClass("selected");
-        $.getJSON("https://windrises.net/bgmtools/recommend/?type=settings&user_name=" + user_name, function(ret){
+        $.getJSON("https://windrises.net/bgmtools/recommend/?type=settings&user_name=" + user_name + "&user_id=" + user_id, function(ret){
 	    	if (ret.error) return;
 	    	var score_below = "", score_above = "", rank_below = "", rank_above = "", rating_below = "", rating_above = "";
 	    	if (ret.score_below) score_below = ret.score_below;
@@ -255,7 +259,7 @@ function settings(user_name) {
 	        		url: "https://windrises.net/bgmtools/recommend",
 		            type: "POST",
 		            tradition: true,
-		            data: {type: "settings_update"},
+		            data: {type: "settings_update", user_name: user_name, user_id: user_id},
 		            success: function (ret) {
 		            	ret = JSON.parse(ret);
 		            	$("#alert_update").html(ret.status);
@@ -280,7 +284,7 @@ function settings(user_name) {
 	        		url: "https://windrises.net/bgmtools/recommend",
 		            type: "POST",
 		            tradition: true,
-		            data: { type: "settings_submit", user_name: user_name,
+		            data: { type: "settings_submit", user_name: user_name, user_id: user_id,
 		            		score_below: score_below, score_above: score_above,
 		            		rank_below: rank_below, rank_above: rank_above,
 		            		rating_below: rating_below, rating_above: rating_above,
