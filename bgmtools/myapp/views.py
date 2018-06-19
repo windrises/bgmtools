@@ -957,11 +957,15 @@ def recommend(request, url):
                     return access_control({'status': 'value error'})
                 filter_tag = request.POST['filter_tag']
                 user_name = request.POST['user_name']
+                user_id = request.POST['user_id']
                 user = ''
                 try:
                     user = User.objects.get(user_name=user_name)
                 except:
-                    return access_control({'status': 'not found'})
+                    try:
+                        user = User.objects.get(user_id=int(user_id))
+                    except:
+                        return access_control({'status': 'not found'})
                 settings = Settings.objects.get(user=user)
                 settings.score_below = score_below
                 settings.score_above = score_above
@@ -1000,11 +1004,15 @@ def recommend(request, url):
                                          'name': x.rcmd.name})
             elif type == 'index':
                 user_name = request.GET.get('user_name')
+                user_id = request.GET.get('user_id')
                 user = ''
                 try:
                     user = User.objects.get(user_name=user_name)
                 except:
-                    return access_control({'error': 'not found'})
+                    try:
+                        user = User.objects.get(user_id=int(user_id))
+                    except:
+                        return access_control({'error': 'not found'})
                 data = {'index': []}
                 date = timezone.now
                 rcmd_index = []
@@ -1077,11 +1085,15 @@ def recommend(request, url):
                                               'name': x.rcmd.name, 'namechs': x.rcmd.namechs})
             elif type == 'user':
                 user_name = request.GET.get('user_name')
+                user_id = request.GET.get('user_id')
                 user = ''
                 try:
                     user = User.objects.get(user_name=user_name)
                 except:
-                    return access_control({'error': 'not found'})
+                    try:
+                        user = User.objects.get(user_id=int(user_id))
+                    except:
+                        return access_control({'error': 'not found'})
                 data = {'user': []}
                 for x in user.rcmd_user.all().order_by('-similarity'):
                     avatar = x.rcmd.avatar.replace('user/l', 'user/m')
@@ -1091,11 +1103,15 @@ def recommend(request, url):
                                         'nick_name': x.rcmd.nick_name})
             elif type == 'recommended':
                 user_name = request.GET.get('user_name')
+                user_id = request.GET.get('user_id')
                 user = ''
                 try:
                     user = User.objects.get(user_name=user_name)
                 except:
-                    return access_control({'error': 'not found'})
+                    try:
+                        user = User.objects.get(user_id=int(user_id))
+                    except:
+                        return access_control({'error': 'not found'})
                 data = {'recommended': []}
                 for x in user.rcmd_list.filter(marked=1).order_by('-date'):
                     name = ''
@@ -1106,11 +1122,15 @@ def recommend(request, url):
                                         'type': {'id': x.type, 'name': name}})
             elif type == 'settings':
                 user_name = request.GET.get('user_name')
+                user_id = request.GET.get('user_id')
                 user = ''
                 try:
                     user = User.objects.get(user_name=user_name)
                 except:
-                    return access_control({'error': 'not found'})
+                    try:
+                        user = User.objects.get(user_id=int(user_id))
+                    except:
+                        return access_control({'error': 'not found'})
                 settings = Settings.objects.filter(user=user)
                 if len(settings) == 0:
                     settings = Settings.objects.create(user=user)
