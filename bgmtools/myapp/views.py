@@ -897,8 +897,9 @@ def get_rcmd_index(user):
 
 def get_rcmd_item(user, num):
     comments = user.comment_set.all().filter(subject__sub_cat='anime', star__gte=8)
-    comments = random.sample(comments, num)
     rcmd = []
+    if len(comments) >= num:
+        comments = random.sample(comments, num)
     for x in comments:
         rcmd_all = x.subject.rcmd_item.all()
         rcmd_all = rcmd_all[:len(rcmd_all) / 2]
