@@ -494,6 +494,8 @@ def multitag(request, url):
 
             dic['id'] = x.id; dic['img'] = img
             dic['namechs'] = x.namechs; dic['namejp'] = x.namejp
+            if dic['namechs'] == '':
+                dic['namechs'] = x.namejp
             dic['tip'] = x.tip; dic['star'] = star
             dic['rank'] = x.rank; dic['votes'] = votes
             dic['starstr'] = starstr
