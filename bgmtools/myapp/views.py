@@ -309,7 +309,7 @@ def run(a, b, f, cat):
 
                 staraflag = 0
                 for i in range(1, 11):
-                    tstara = itema.find('span', class_='sstars' + str(i) + ' starsinfo')
+                    tstara = itema.find('span', class_='starlight stars' + str(i))
                     if tstara is not None:
                         staraflag = 1
                         stara.append('sstars' + str(i) + ' starsinfo')
@@ -330,7 +330,7 @@ def run(a, b, f, cat):
 
                 starbflag = 0
                 for i in range(1, 11):
-                    tstarb = itemb.find('span', class_='sstars' + str(i) + ' starsinfo')
+                    tstarb = itemb.find('span', class_='starlight stars' + str(i))
                     if tstarb is not None:
                         starbflag = 1
                         starb.append('sstars' + str(i) + ' starsinfo')
